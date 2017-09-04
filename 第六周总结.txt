@@ -1,0 +1,361 @@
+﻿Html5 新标签与属性
+
+全局属性,让整个页面进入可编辑模式
+document.designMode = 'on'
+
+绝大多数对称性标签可以不写尾标签,
+但是为了分清兄弟与父子关系,尽量写为对称性
+
+如果标签的属性值是boolean类型 或是属性名本身,可以忽略属性值,直接写属性名
+例如:contenteditable  reversed
+
+HTML4中 所有表单元素必须要写在表单内部,在HTML5中我们可以把它书写到任何一个地方
+首先给form标签设置id属性,然后给表单元素设置form属性,将指定的form表单id写入表单元素的form中
+
+1.formaction
+    在HTML4中 表单元素只能通过action属性统一的提交到指定的路径
+    在HTML5中 表单元素可以提供给不同的按钮,点击不同的按钮可以提交到不同的页面
+
+2.formmethod
+    在HTML4中 表单元素只能通过method属性统一指定方法提交
+    在HTML5中 formmethod属性可以提供给不同的按钮,点击不同的按钮可以用不同的方式提交
+
+3.autofocus     让文本输入框进入相应状态    .js target.focus()
+
+4.placeholder   让输入框内显示输入提示
+
+5.list          属性  该属性通过赋值某个datalist标签的id,给表单输入框匹配一个选择提示框,允许自行输入,并且输入框自带模糊匹配功能
+
+6.autocomplete  属性  是否开启辅助输入,on off ""  (取决于浏览器默认)
+
+7.required      属性  指定该表单元素不能为空
+
+8.pattern       给表单元素指定特殊的校验规则 (通常用正则表达式)
+
+9.novalidate    属性 取消表单内所有元素的验证
+
+10.formnovalidate   submit标签内让form添加novalidate(取消表单内所有元素的验证)
+                单独给标签添加,只取消当前标签的表单验证(但许多浏览器不支持)
+
+
+增加与改良       表单元素
+
+search      与text文本相似,用途页面的搜索框,在手机端中,会将手机键盘的确认按钮改为搜索按钮
+
+tel         与text文本类似,用于填写电话号码
+
+url         指定用户必须输入正确格式的url路径
+
+email       指定用户必须输入正确格式email地址
+
+datetime-local(年-月-日 时-分) date  (年月日)
+month(年月) week(年第几周) time(时分)       各种日期时间输入文本框
+
+number      只允许输入数字,max min表示范围,step表示无论当前值是多少,数字规定以多少为间隔(step=3时,-3,0-3,6,9)
+
+range(拖动条)   只允许输入,一段范围内的文本框 min max step
+
+color       颜色选择框
+
+file        文件选择    multiple 属性支持文件多选 value:一个或多个用逗号隔开的文件名
+            同时会把文件的MIME文件类型指定给accept属性,如果file 表单元素 中指定accept属性,限制选择文件的种类
+
+script标签中
+
+自定义错误信息
+.setCustomValidity('')
+
+验证表单内容对错,返回Boolean值
+.checkValidity()
+
+
+FileList 对象     file对象
+        FileList对象表示用户选择的文件列表
+        h4,file控件只允许存放一个文件,但h5 有multiple属性允许用户一次存放多个文件
+        一个文件就是一个file对象,FileList对象 存放file对象的列表,代表用户选择的所有文件
+        file有两个属性   name表示文件名 lastModifiedDate:最后修改日期
+Blob对象  表示二进制原始数据,他给我们提供了一个方法 slice方法,可以通过该方法访问到字节内部的原始数据(在原型内部)
+
+Blob对象有两个属性,size属性:对象的字节长度  type属性:对象MIME类型(''空字符串代表未知类型)
+
+//h5中给file空间添加了accept属性,限制文件类型
+企图让file控件只能接受某种类型的文件,但是各大主流浏览器对齐的支持,打开窗口时默认选择指定文件,
+但是用户可以更改文件选择,所以当页面需求我们只能上传指定格式文件时需要用js代码
+
+FileList.files[index]拥有两个属性
+.type   文件类型
+.size   文件大小
+.name   文件名称
+.lastModifiedDate   文件最后修改日期
+
+
+FileReader:把文件读入内存,并且读取文件中的数据
+FIleReader接口提供了一个异步API,可以让浏览器在主线程中异步的访问文件
+
+FileReader接口方法
+
+FileReader有四种方法,三种用以读取文件(无论读取成功失败,都不会返回读取结果),一种用于中断读取
+
+1. .readAsBinaryString(file)                将文件读取成二进制编码
+2. .readAsText(file,encoding(字符串编码))    将文件读取成文本
+3. .reader.readAsDataURL(file)              将图片读取为DataURL
+例如:Data Url <img src="data:image/gif;base64,R0lGODlhMwAxAIAAAAAAAP///   //注意:这属于一张图片,
+            yH5BAAAAAAALAAAAAAzADEAAAK8jI+pBr0PowytzotTtbm/DTqQ6C3hGX     //不需要引入链接
+            ElcraA9jIr66ozVpM3nseUvYP1UEHF0FUUHkNJxhLZfEJNvol06tzwrgd
+            LbXsFZYmSMPnHLB+zNJFbq15+SOf50+6rG7lKOjwV1ibGdhHYRVYVJ9Wn
+            k2HWtLdIWMSH9lfyODZoZTb4xdnpxQSEF9oyOWIqp6gaI9pI1Qo7BijbF
+            ZkoaAtEeiiLeKn72xM7vMZofJy8zJys2UxsCT3kO229LH1tXAAAOw==">
+4. .abort()                                 中断读取操作
+
+同样FileReader也有接口事件
+
+onabort                     FileReader读取中断时触发
+onerror                     FileReader读取出错时触发
+onloadstart                 读取开始时触发
+onprogress                  数据读取中触发
+onload                      读取完成时
+onloadend                   读取完成时,无论成功失败
+
+因为FileReader不一定所有浏览器支持,所以要进行判定
+
+
+
+
+details标签 (可以展开关闭的标签,显示内部除了summary标签的标签包括内容)
+
+progress 进度标签   max min value
+
+meter   标量测量尺度  min max high(低于指定值变黄)  value
+
+
+
+
+拖动与施放
+
+1)将拖放元素的属性draggable设置为true,另外a(必须指定href)标签和image默认允许拖放
+2)编写拖放有关的代码,拖放有如下几个事件
+
+dragstart       拖动元素                   开始拖动操作
+drag            拖动元素                   拖动过程中
+dragend         拖动元素                   拖动结束时
+
+dragenter       拖动过程中鼠标经过的元素    拖动元素进入本元素范围内
+dragover        拖动过程中鼠标经过的元素    拖动元素正在本元素范围内移动
+dragleave       拖动过程中鼠标经过的元素    拖动元素离开本元素范围
+
+drop            目标元素                    有拖动元素到本元素中并被施放
+
+e.dataTransfer  专门用来存放拖动时携带的数据的对象
+他可以设置为拖动事件对象event的dataTransfer属性
+
+dropEffect             表示拖放视觉效果,只允许指定值:none copy link move
+                        (如果是none则不能进行拖动 copy是加号图标 link是链接图标 move是无附加图标)
+
+effectAllowed          指定当前元素被拖动时允许的视觉元素
+                       ( none copy link move copyLink copyMove linkMove all uninitalized )
+
+setData(format,data)   存储数据的方法   (有两个参数,第一个是存储数据的类型,第二个是存储数据的数值)
+                       text/plain 文本文字 text/html html文字  text/xml  xml文字 text/url-list URL列表,每个url为一行
+
+getData(format)        读取数据的方法   (通过存储数据的类型读取到数据的数值)
+
+clearData(format)      删除数据的方法,不传参则删除全部数据
+
+setDragImage(ele,offsetX,offsetY)    更改拖动的缩略图样式
+
+types                  存入数据种类,字符串的伪数组.
+
+针对目标元素,必须在dragend,dragover事件内调用e.preventDefault();
+在默认情况下目标元素是不允许接受元素的,为了把元素放入其中,必须取消默认
+ (如果在dragover事件内不取消默认,则后面的ondrop将不能调用)
+
+ //draggable = 'true' 属性兼容写法    -webkit-user-drag:element
+
+
+地理定位
+
+window.navigator.geolocation    html5新增,地理定位
+通过geolocation提供的三个方法    获取当前地理定位
+
+
+方法一:getCurrentPosition    参数一获取地理位置成功时回调函数返回position对象
+                             参数二获取地理位置失败时回调返回一个error 对象
+                             参数三    可选属性
+                             1.enableHighAccuracy    布尔值:表示是否启动高精度模式,启动后,浏览器获取位置信息将耗费更多时间
+                             2.timeout               整数:表示浏览器需要在指定事件内获取位置信息,否则触发errorCallback
+                             3.maximumAge            整数/常量:表示浏览器重新获取位置信息的时间间隔
+
+
+方法二:watchPosition() 获取当前用户地理位置,定期的自动获取,参数上一个方法相同
+
+方法三:clearWatch(watchId) 停止对当前用户地理位置监视,该方法的参数为调用watchCurrentPosition()方法监视地理位置信息返回的参数
+
+示例:
+
+navigator.geolocation.getCurrentPosition(function(position){
+        (
+        position对象
+        latitude : 纬度
+        longitude: 经度
+        altitude :海拔高度:不能获取返回null
+        accuracy :纬度和经度精确度 以米为单位
+        altitudeAccuarancy: 海拔的精确度
+        heading: 设备前进方向 以面朝地球正北方向顺时针的角度表示
+        speed: 设备前进的速度 米/秒为单位
+        timestamp: 获取地理位置信息的事件
+       )
+    },function(error){
+        console.log('获取失败',error)
+        当获取当前地理位置失败是,会返回一个error对象 作为参数,该对象具有两个属性
+        code属性 有三个值
+        1 用户拒绝了位置服务
+        2 获取不到位置信息
+        3 获取信息超市
+        message属性 是一个字符串,该字符串包含了一个错误信息,fireFox 在3.6以上某些版本不支持message
+
+    },{
+        maximumAge: 120*1000,
+        timeout:5000
+    })
+
+视频/音频   h5增加了 video和audio标签，不再像以前那样使用插件去播放音频视频
+audio和video支持的属性和方法基本一样
+<video controls>    //浏览器支持什么格式就播放什么格式
+    <source src="demo.ogv" type="video/ogg">
+    <source src="demo.webm" type="video/webm">
+    <source src="demo.mov" type="video/quicktime">
+</video>
+
+当浏览器不支持所有视频格式时，可以使用flash来代替
+
+<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="425" height="344" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8">
+        <param name="allowFullScreen" value="true">
+        <param name="allowscriptaccess" value="always">
+        <param name="allowfullscreen" value="true">
+        <embed type="application/x-shockwave-flash"
+               width="425" height="344"
+               src="server/flash5512.swf"
+               allowfullscreen="true" allowscriptaccess='always'></embed>
+    </object>
+
+
+video audio 标签属性
+
+src                 音频/视频来源
+
+autoplay            加载完成时立即播放
+
+controls            显示音频/视频控件
+
+currentSrc          返回当前音频/视频URL
+
+duration            返回当前视频/音频的播放长度
+
+currentTime         返回当前播放位置(以秒计)
+
+volume              返回当前音量(0-1)
+
+muted               是否静音
+
+defaultMuted        设置默认静音(仅chrome支持)
+
+playbackRate        设置播放速度(1.0(正常) 0.5(慢速) 2.0(快速))
+
+defaultPlaybackRate 设置默认播放速度(不能用来更改当前播放速度)
+
+ended               返回是否播放完毕 true完毕 false未完
+
+loop                设置或返回是否在播放时再次播放
+
+paused              是否暂停
+
+preload             在页面加载后立即加载  (auto 页面加载后开始加载)(metadata 页面加载后仅加载元数据)(none 不加载音频/视频)
+
+width               仅视频,宽度
+height              仅视频,高度
+poster              仅视频,默认图片(封面)
+
+方法
+load()              重新加载音频/视频
+play()              播放音频/视频
+pause()             暂停音频/视频
+
+requestFullscreen   全屏 (一般用兼容写法,如下)
+                    if(video.requestFullScreen){
+                        video.requestFullScreen();
+                    } else if(video.webkitRequestFullScreen){
+                        video.webkitRequestFullScreen();
+                    } else if(video.mozRequestFullScreen){
+                        video.mozRequestFullScreen();
+                    }
+
+
+
+本地缓存：HTML5 引入了应用程序缓存，这意味着 web 应用可进行缓存，并可在没有因特网连接时进行访问。
+ 原因：web应用需要（没网的时候，你的web应用就不能够正常使用了）
+ 应用程序缓存为应用带来三个优势：
+ 离线浏览 - 用户可在应用离线时使用它们
+ 速度 - 已缓存资源加载得更快
+ 减少服务器负载 - 浏览器将只从服务器下载更新过或更改过的资源。
+
+本地缓存与浏览器缓存的区别：
+   对象不同：一个是整个web应用，一个是单个网页
+             一个可控制，另外一个不可控制（资源的数量）
+             安全，可靠，能更新
+
+
+本地缓存(manifest 文件后缀名为.appcache)
+
+CACHE MANIFEST  //第一次加载需要联网,以后则不需要(本地缓存)
+D:\Html5\JS课\第六周-Html5 CSS3\day4\manifest.css
+D:\Html5\JS课\第六周-Html5 CSS3\day4\jquery-3.2.1.js
+D:\Html5\JS课\第六周-Html5 CSS3\day4\move.js
+NETWORK:        //每次加载都需要联网
+*
+FALLBACK:       //若找不到上面的文件,则返回下面的文件(404.html)
+*
+
+交互过程:
+    1.第一次请求:请求所需的资源,浏览器处理manifest文件,返回需要缓存的文件,对本地缓存进行更新,
+    存入相关manifest文件,并且触发一个时间,通知本地缓存已经更新
+
+    2.第二次请求(manifest文件没更改):不会向服务器请求资源,而是使用本地缓存,所缓存的资源解析出来后,
+    浏览器会再向服务器请求manifest文件,服务器会返回一个304的状态码,通知浏览器manifest文件没有变化
+
+    3.第三次请求(manifest文件已更改):同样先使用本地缓存中所缓存的资源,解析出来后,浏览器向服务器请求
+    manifest文件,服务器返回新的manifest文件,浏览器在处理manifest文件,请求所需要更新的资源,包括页面
+    本身,更新本地缓存资源,并且触发事件,通知本地缓存已经更新
+    PS:本地缓存资源的更新,是不会立即产生变化,只有下次打开页面时,才发生变化
+
+    window.applicationCache
+
+    applicationCache对象：代表了本地缓存，提供属性与方法，对本地缓存进行控制（所以才说他是可控制的）
+
+       updateReady事件：发现服务器的manifest文件更新与把所需要更新的资源下载到本地才触发（本地缓存准备更新）
+
+       swapCache() 方法：手工执行本地缓存的更新（只有在updateReady事件被触发，才调用这个方法）
+       使用：
+         applicationCache.onUpdateReady=function(){
+               alert('本地缓存正在更新');
+                applicationCache.swapCache();
+                alert('本地缓存更新完毕');
+         }
+
+       注意:swapCache()方法使得本地缓存资源的更新，是不会立刻发生变化的，只有下次再打开页面，页面才会发生变化;
+             还有一点就是就算不使用swapCache()方法，只是在本次请求页面没有更新缓存页面，下一次请求的时候，就会更新
+             你的本地缓存，所以使用swapCache()方法，是要我们在选择较好的时机，更新我们的本地缓存，提高用户的体验；
+             时机是配合confirm()方法：给一个提示框，是否选择更新本地缓存，如果选择是，就更新本地缓存资源，在刷新页面
+
+             checking事件：第一次发送请求，发现该网页有manifest，就会检查文件是否存在，不存在触发error事件
+
+             downloading事件：然后正在下载资源，意味着下载资源的开始
+
+             progress事件：  正在下载资源的过程中，周期性的触发（某个文件下载完毕），我们可以利用这个这个事件
+                             实现查看那些资源被下载，那些正在下载的队列的信息；
+
+             cached事件：下载资源结束后触发，表示首次缓存成功
+
+             noupdate事件：第二次请求，发现manifest文件，没有被更新触发这个事件
+
+             obsolete事件：浏览器访问本地缓存，找不到页面（404），触发这个事件
+

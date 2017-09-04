@@ -1,0 +1,309 @@
+﻿jQuery总结
+
+jQuery:jquery 对象的名称     jQuery == $ (jquery的缩写别名)
+
+$(function(){})     //jQuery函数内部
+
+1.jq选择器     $(selector,context) selector:选择器String类型css选择器,context上下文环境
+    1)  标签选择器   $('div')
+
+    2)  ID选择器     $('#id')
+
+    3)  class选择器  $('.class')
+
+    4)  复合选择器   $('div,span,.class,#id')
+
+    5)  关联选择器   $('ul li')  $('ul>li')
+
+    6)  属性选择器   $('[type='text]')   (可以使用data-  自定义属性 可以使用正则表达式)
+                                         $('li[data-index="1"]') 获取属性data-index值为1 所有li
+                                         $('li[data-index^="1"]') 获取属性data-index值开头为1 所有li
+                                         $('li[data-index$="1"]') 获取属性data-index值结尾为1 所有li
+                                         $('li[data-index*="1"]') 获取属性data-index值包含1 所有li
+                                         $('li[data-index!="1"]') 获取属性data-index值不等于1 所有li
+                                         $('[data-index]')        获取所有有属性data-index的元素
+    7)  表单选择器
+            :input     //匹配所有 input, textarea,select,button
+
+            :text     //匹配所有 单行文本元素
+
+            :password //匹配所有 密码输入框
+
+            :radio   //匹配所有 单选框
+
+            :checkbox //匹配所有 复选框
+
+            :submit  //匹配所有提交功能按钮   包括button元素
+
+            :reset  //匹配所有重置按钮
+
+            :button  //匹配所有的按钮 button元素
+    8)可见性
+            :visible        //匹配页面所有可见元素
+
+            :hidden         //匹配所有不可见元素 display:none,或宽或高为0;或type为hidden
+    9)上下文环境
+            var $test = $('ul.test')
+
+            console.log($('test',$test))
+
+
+
+2.jQuery对象的方法(使标签获得内嵌样式)
+        1.单个取值/赋值
+        css[attr[,val]]: 获取/更改元素style属性
+        2.多个取值
+        取值 .css(attr)   $("#box").css(['width','fontSize'])
+        3.多个赋值
+        赋值 .css(attr,val)   $("#box").css({width:16,fontSize:18})
+
+        1.属性赋值
+        attr([attr,attr])
+        2.属性赋值
+        attr({attr:value,attr:value})
+
+
+3.筛选
+    1)基本筛选
+    :selected     获取已经选择到的option元素
+
+    :nth-child	匹配每个父元素下的第index个子元素 索引从1开始	集合元素	$(“div:nth-child(2)”)
+
+    :first-child	匹配每个父元素的第一个子元素	集合元素	$(“div:first-child”)
+
+    :last-child	匹配每个父元素的 最后一个子元素	集合元素	$(“div:last-child”)
+
+    : only-child	某元素是它父元素中的唯一的子元素 则匹配它	集合元素	$(“div:only-child”)
+
+    :checked      匹配所有单选框,复选框中被勾选的元素
+
+    :odd/:even  :gt(n) :lt(n)   筛选范围(奇偶数) 支持负数
+
+    :empty         匹配不含文本内容 或子元素的元素
+
+    :eq(n)  :last   :first  筛选第n个 最后一个 第一个
+
+    :not(selector)  匹配除了指定选择器匹配的元素
+
+    :has(selector)  匹配含有与指定选择器匹配的元素
+
+    :contains('str') 筛选元素中包含指定文本内容的元素
+
+    2)过滤
+    .first()/.last()    集合中第一个/最后一个元素
+
+    .eq(n/-n)           获取集合中第n个元素  (支持负数)
+
+    .filter (selector/obj/ele/fn)   筛选出指定元素匹配的元素集合,这个方法用于缩小匹配范围,用逗号分隔多个表达式
+
+    .map() 将一组元素转化为数组   $.map(需要遍历的对象,function(item){}) 将对象遍历,处理后返回一个新的数组
+
+    .slice(start[,end]) 根据参数范围匹配子集
+
+    .has 获取含有特定后代的元素
+
+    .not 获取排除指定表达式的元素   跟filter相反
+
+    .hasClass() 判断当前元素是否含有特定的类名,返回布尔值
+
+    .is() 选择器表达式，根据选择器/元素/jQuery 对象检查匹配元素集合，如果存在至少一个匹配元素，则返回 true，否则返回 false
+
+    查找
+
+    .find(selector|o|e) 查找后代元素
+
+    .children([selector]) 匹配元素的所有子元素  原生js.chilren
+
+    .parent([selector])  获取父元素
+
+    .parents([selector]) 获取所有父级元素
+
+    .closest(selector|o|e) 从本身元素开始(包含自身元素),逐级向上级元素匹配,并返回最先匹配到的元素
+
+    .offsetParent():返回第一个有定位的父级元素,如果所有父级都没有定位返回 html 元素
+
+    .next([selector])/prev([selector]) 返回下一个/上一个同辈元素
+
+    .nextAll([selector])/prevAll([selector]) 获取当前元素之前/之后所有同辈元素
+
+    .nextUntil() / .prevUntil()     介于两个元素之间所有元素
+
+    .siblings([selector])  获取当前元素除自身以外所有同辈元素
+
+
+    1)创建jQuery对象
+
+        1.添加没有内容的标签     $('<div>')
+
+        2.添加有内容的标签       $('<div>内容</div>')
+
+    2)元素添加
+
+        1.内部添加(子元素)
+        $parent.append(obj,ele,fn) 在元素内最后面添加内容
+
+        $child.append($parent)
+        2.外部添加(兄弟元素)
+        after   元素后面插入内容    -->insertAfter
+
+        before  元素前面插入内容    -->insertBefore
+
+        //如果页面上已经存在的元素,被上面的方法重新添加的话,元素会被这些方法移动到页面相对应的位置
+
+        3.元素的删除
+        .remove()   删除元素,虽然元素从文档中删除了,但js仍保留对其的引用
+
+        .empty()    清空元素内所有内容
+
+        4.元素复制
+            .clone(event[,deepEvent])
+                event (true/false)  是否复制当前元素的事件,默认值为false
+
+                deepEvent           是否复制当前元素子元素的的行为,默认值是event
+
+                //如果event为false,deepEvent为true 子元素行为不被复制
+
+        5.元素的替换
+            replaceWith()   将指定元素替换成匹配元素
+
+            replaceAll(selector)    将匹配到的元素全部替换成指定元素
+
+        Animate动画
+        .animate(style[,speed][,easing][,callback])
+
+        .offset()   返回当前元素的top left
+
+        1.原生js事件的绑定
+             <p onclick=''></p>  (淘汰)
+
+             onclick = function():  多个同名事件会被覆盖
+
+             addEventListener(): 多个同名事件不会被覆盖
+
+           2.常用事件方法
+             .click([data,]fn)      data是一个对象
+             //data是一个可选参数,用途方便开发人员给 fn函数内传递一些数据, 通过fn(e){e.data}获取传递的参数
+
+             .dblclick([data,]fn)
+
+             .mouseover([data,]fn)
+
+             .mouseout([data,]fn)
+
+             .mousemove([data,]fn)
+
+             .mousedown([data,]fn)
+
+             .mouseup([data,]fn)
+
+             .mouseenter([data,]fn)
+
+             .mouseleave([data,]fn)
+
+             键盘事件
+             .keydown([data,]fn)
+
+             .keyup([data,]fn)
+
+             .keypress([data,]fn)
+
+             表单事件
+             .blur([data,]fn)
+
+             .focus([data,]fn)
+
+             .change([data,]fn)
+
+             .submit([data,]fn)
+
+             其他事件
+             .resize([data,]fn)  元素大小发生改变触发
+
+             .scroll([data,]fn)  滚动时触发
+
+             input没有方法 文本输入时触发
+
+           3.jQuery事件的绑定与移除
+            $jq.on(type[,selector],fn)
+                1.type 事件类型string 'click' 'keyup'
+                2.selector  把本来绑定 $jq事件委托给他的子级 用于冒泡
+                3.一次性绑定多个事件,事件之间用空格隔开
+
+            $jq.off('click')        清除当前元素的点击事件
+            $jq.off('click',fn)     清除指定方法的指定事件
+            $jq.off()               清除当前元素所有事件
+            $jq.off('click mouseover')  一次清除多个事件
+
+            //事件的命名空间
+            //在事件的末尾加.自定义名(对事件加一细分) 防止删除掉其他同名事件
+
+            $jq.off('click.output') 清除命名空间为output的click事件
+
+            bind()绑定事件  unbind()解绑定事件   (基本不用)
+
+        2.解除冒泡
+            //阻止冒泡
+            e.stopPropagation();
+            //阻止浏览器默认行为
+            e.preventDefault();
+            //两者一起阻止
+            return false;
+
+
+动画
+    1.基本动画
+        show()/hide()
+       原理:  hide() 更改display为 none
+              show() 更改display为 block
+    2.滑动
+        slideDown():
+           显示元素,不断增加高度直到内容达到样式设定的值;
+
+        slideUp():
+           不断减少高度直到零,并隐藏元素
+    3.淡入淡出
+        fadeIn():
+            显示元素,由0不断改变透明度直到1;
+        fadeOut():
+            由1不断改变透明度到0,隐藏元素
+        fadeToggle([speed][,callback])如果元素是隐藏的就淡入,如果元素是显示的就淡出
+        fadeTo([speed],opacity[,easing][,callback])不断改变透明度,直到达到设定的值
+    4.停止动画
+        stop(stopAll[,goToEnd])·
+            stopAll为true 将当前动画运行到当前样式停止,并将队列中的动画移除,goToEnd为true 将动画运行到动画指定样式
+
+    5.自定义动画
+             animate(params[,speed][,easing][,fn])
+             判断一个元素是否处于动画状态 is(':animated')
+
+    6.动画队列
+        1)一个元素上的动画
+        当animate 上有多个属性时,动画同时发生
+        当同一个元素链式调用动画时,动画按(注册)顺序发生
+
+        2)多个元素上的动画
+        默认情况下同时发生
+        回调函数内的动画要等到当前动画执行完成后才接着执行
+
+        3)delay
+        设置一个延迟时间推迟指定动画队列的动画
+        delay(duration(持续时间),[queueName])
+
+    7.队列函数
+        在jQuery中当你使用一系列动画效果时,这些动画都会被写入一个叫"fx"(默认为fx)的队列中
+        以先进先出的执行方式执行动画队列中的函数
+        动画的回调函数内的动画,在队列执行完后才开始执行
+        非动画函数,是不会进入该队列中的,并且先于动画函数执行
+
+        queue('name(队列名)',fn)    参数二:这个函数用来添加到通过参数一匹配到的队列的最后)
+
+        queue('name').length        返回队列中还没有执行的队列长度 动画的回调函数内的动画不计在队列长度中
+
+        queue('name',fn(next){      queue中的函数都是回调函数,这些函数都被放入到指定名称的队列中
+         next();                    next是queue方法在回调过程中传入的一个函数方法,作用是让队列执行
+        })                          下一条存放在队列中的函数,如果不写next,函数后面的队列函数将不被执行!
+
+        dequeue('name')  (执行队列函数)     匹配当前队列,删除队列中第一个函数并执行他
+
+        替换队列(替换的是一个函数数组,队列名不能更改) 例: queue('name(队列名)',[fn,fn,...])
+            执行完当前动画,开始新队列的函数,如果当前动画中有回调函数,则在新队列执行完成后执行回调函数

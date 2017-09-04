@@ -1,0 +1,902 @@
+﻿canvas (画布)
+
+canvas标签只有两个非通用的属性, 宽度width 高度height , canvas默认大小为 300*150
+如果想要指定canvas的宽高 一定要使用上面两种非通用属性,而不能使用css(css不能保证画布的分辨率)
+
+canvas元素和普通元素一样有 margin border background 等样式
+
+canvas绘图是通过对canvas的内容进行处理,目前canvas只有2d 绘图环境
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
+
+绘画
+context.moveTo(100,100);    //将画笔移动到画布指定位置
+context.lineTo(500,100);    //将画笔位置绘制到指定位置
+
+绘画的样式
+context.lineWidth = 5 ;     //画笔粗细
+context.strokeStyle = 'red' //画笔外观
+
+绘制
+context.stroke();
+
+canvas是基于状态的绘制,在整个绘制过程中strokeStyle是状态的设置,后面的状态会将之前的状态覆盖
+如果想要同时显示出不同的状态,需要使用到beginPath,让画布重新开始全新的绘制
+如果用了beginPath,但是某些状态值没改变,beginPath也会继续使用该值
+
+closePath()     绘制封闭图形,代表当前绘制的图形结束并且将其自动的封闭
+
+_____________________________________________________________________________
+
+线条属性
+lineCap 线帽
+context.lineCap = 'butt'(默认)    ('square'还有 'round')
+
+lineJoin 交线处
+context.lineJoin= 'round'(圆角)   ('bevel'(斜接),'miter'(尖角))
+
+context.miterLimit =15 ;    整数,规定最大斜接长度 如果超过,边角会以 bevel类型来显示
+
+___________________________________________________________________________________
+
+矩形绘制
+context.strokeRect(x0,y0,width,height)     矩形边框
+context.fillRect(x0,y0,width,height)       填满的矩形
+
+或者
+context.rect(x0,y0,width,height) //设定了矩形的范围
+context.stroke();
+context.fill()
+
+__________________________________________________________________________________
+
+弧形
+context.arc(x0,y0,radius,0,2*Math.PI,true)
+ //前两个参数是圆的原点位置,radius是半径,第四个参数:起始角度(三点钟方向为0,顺时针递增) 第五个参数:结束角度  第六个参数:false为顺时针,true为逆时针
+
+context.moveTo(x0,y0)
+context.arcTo(x1,y1,x2,y2,radius)
+//将绘制出一条相连的直线与圆弧 圆弧会与(x1y1, x2y2)的直线相切,如果因圆弧的半径过大,将会以(x1y1, x2y2)作延长线,进行绘制直线与圆弧
+
+__________________________________________________________________________________
+
+贝塞尔曲线
+
+二次贝塞尔曲线
+context.quadraticCurveTo(x1,y1,x2,y2);
+控制点只有一个(x1y1,x2y2)
+
+三次贝塞尔曲线
+context.bezierCurveTo(x1,y1,x2,y2,x3,y3);
+控制点有两个(x0y0,x1y1)(x2y2,x3,y3)
+
+________________________________________________________________________
+
+填充样式
+
+线性渐变
+
+创建一个线段,用来定义渐变线相对于画布的位置,方向,以及渐变尺度一条功能线
+var gradLine =context.createLinearGradient(x0,y0,x1,y1);
+
+如果渐变线没有绘制图形长的话,绘制图形的颜色会以渐变线开始或者结尾颜色向后延伸
+
+gradLine.addColorStop(0.0,'#fff');      //规定渐变的颜色和停止的位置
+gradLine.addColorStop(0.2,'#f00');
+gradLine.addColorStop(0.4,'#ff0');
+gradLine.addColorStop(0.6,'#0f0');
+gradLine.addColorStop(1.0,'#00f');
+context.fillStyle = gradLine
+
+径向变换    (参数为两个圆环中心坐标与半径)
+
+var radial = context.createRadialGradient (x0,y0,r0,x1,y1,r1)
+radial.addColorStop(0.0,'#fff');
+radial.addColorStop(0.2,'#f00');
+radial.addColorStop(0.4,'#ff0');
+radial.addColorStop(0.6,'#0f0');
+radial.addColorStop(1.0,'#00f');
+context.fillStyle = radial;
+
+pattern样式填充,
+
+var pattern = context.createPattern(img,'repeat') //第一个参数可以为(img,video,audio),第二个参数选择重复类型
+context.fillStyle = pattern;
+context.fillRect(x0,y0,width,height);
+
+_________________________________________________________________________________
+
+context.save()  保存当前图形状态
+
+context.restore() 与save成对出现,返回save节点之前所有绘图状态
+
+context.scale(n)    //0-1 为缩小倍数 大于1 为放大倍数
+
+context.rotate(deg)    //旋转整个当前画布
+
+context.translate(x,y) //重新映射画布的(0,0)点
+
+ 使用scale 进行缩放操作 ,边框的宽高也会发生缩放
+ 如果使用多种变形API 并且scale在translate之前 偏移量也会进行缩放
+如果进行一系列的 图形变化 translate一定要写在前面(scale,rotate)都是对画布整体的变化,
+ translate写在后面不太好把握图形的位置
+
+ _______________________________________________________________________________________
+
+canvas API利用坐标变换实现变形技术,当利用坐标变换不能满足我们的需要时,我们就可以利用矩阵变化
+矩阵变化   专门用来实现图形变形,图形上下文环境创建出来时,也创建了一个默认变化矩阵
+
+context.transform(m11,m12,m21,m22,dx,dy)    //相对于上一个transform
+| m11   m21  dx |
+| m12   m22  dy |
+| 0     0    1  |
+dx  dy  移动坐标原点
+m11水平缩放   m12水平倾斜   dx 水平位移
+m21垂直倾斜   m22垂直缩放   dy 垂直位移
+
+context.setTransform(m11,m12,m21,m22,dx,dy)//设置当前的transform
+
+
+_______________________________________________________________________
+
+图形结合
+
+context.globalCompositeOperation
+
+     值	                描述
+
+     source-over	    默认。在目标图像上显示源图像。
+
+     source-atop	    在目标图像顶部显示源图像。源图像位于目标图像之外的部分是不可见的。
+
+     source-in	        在目标图像中显示源图像。只有目标图像内的源图像部分会显示，目标图像是透明的。
+
+     source-out	        在目标图像之外显示源图像。只会显示目标图像之外源图像部分，目标图像是透明的。
+
+     destination-over	在源图像上方显示目标图像。
+
+     destination-atop	在源图像顶部显示目标图像。源图像之外的目标图像部分不会被显示。
+
+     destination-in	    在源图像中显示目标图像。只有源图像内的目标图像部分会被显示，源图像是透明的。
+
+     destination-out	在源图像外显示目标图像。只有源图像外的目标图像部分会被显示，源图像是透明的。
+
+     lighter	        显示源图像 + 目标图像。
+
+     copy	            显示源图像。忽略目标图像。
+
+     xor	            使用异或操作对源图像与目标图像进行组合。
+
+
+context.drawImage(image,x,y)  参数一装载图像文件 参数二三 图像在画布上坐标
+
+context.drawImage(image,x,y,w,h) 前三个参数与上一个使用方法相同 指定图片的w h宽高
+
+context.drawImage(image,sx,sy,sw,sh,dx,dy,dw,dh) sx,sy,sw,sh 在原图上截取的一部分  dx,dy,dw,dh在画布上展示图片
+
+//用drawImage方法 作平铺效果
+var scale = 2;                      //缩小倍数
+var w = img.width/scale;            //缩小后图片宽度
+var h = img.height/scale;           //缩小后图片高度
+var nw = canvas.width/ w;                   //横向能铺满的图片数量
+var nh = canvas.height/ h;                   //纵向能铺满的图片数量
+for (var i = 0; i < nw; i++) {
+    for (var j = 0; j < nh; j++) {
+        cxt.drawImage(img, i * w, j * h, w, h)
+    }
+}
+
+
+阴影
+context.fillStyle = '#eee';          //阴影颜色
+context.shadowOffsetX = 10;          //阴影的横向坐标
+context.shadowOffsetY = 10;          //阴影的纵向坐标
+context.shadowColor = 'red';         //阴影颜色
+context.shadowBlur = 20;             //阴影的模糊度
+
+isPointInPath(x,y)             //返回该点是否在路径中
+
+全局透明度
+context.globalAlpha =n         // 0到1的范围
+
+context.clip()  对画布进行剪切,从原始画布中剪切任意形状和尺寸。
+//提示：一旦剪切了某个区域，则所有之后的绘图都会被限制在被剪切的区域内（不能访问画布 上的其他区域）。
+//您也可以在使用 clip() 方法前通过使用 save() 方法对当前画布区域进行保存，并在以后的任意时间通过 restore() 方法对其进行恢复
+
+______________________________________________________________________________________________-
+
+图片像素
+
+context.getImageData(sx,sy,sw,sh) 返回一个 CanvasPixelArray,包含height width data 等属性
+data属性: 保存像素的数组,类似[r1,g1,b1,a1,r2,g2,b2,a2,...]包含每一个像素的rgb值和透明度
+data.length 所取得的像素的数量的四倍
+
+context.putImageData(x,y[,dirtyX,dirtyY,dirtyW,dirtyH]);
+ //将getImageData中的数据绘制到(x,y)点处,并且以(dirtyX,dirtyY)为原点展示以dirtyW为宽度,以dirtyH为高度的图片
+
+______________________________________________________________________________________________
+
+绘制文字
+
+context.font   // 设置文字格式
+例如:context.font='italic 30px 微软雅黑';
+
+context.textAlign ='right';
+                  //以下为可选属性
+                  //start 	默认。文本在指定的位置开始。
+                  //end	    文本在指定的位置结束。
+                  //center  文本的中心被放置在指定的位置。
+                  //left	文本在指定的位置开始。
+                  //right 	文本在指定的位置结束。
+
+context.textBaseline = 'top';
+                  //以下为可选属性
+                  //alphabetic	默认。文本基线是普通的字母基线。
+                  //top	        文本基线是 em 方框的顶端。
+                  //hanging	    文本基线是悬挂基线。
+                  //middle	    文本基线是 em 方框的正中。
+                  //ideographic	文本基线是表意基线。
+                  //bottom	    文本基线是 em 方框的底端。
+
+context.fillText('text',x,y)    实心字
+
+context.strokeText('text',x,y)  空心字
+
+context.measureText(txt)        //在绘制文字之前测量文字的宽度
+                                //对象中只有width(context.measureText(txt).width)
+_________________________________________________________________________
+
+将canvas转变成64位格式的URL
+canvas.toDataURL('type',encoderOptions)//第一个参数为文件类型(指定文件不支持用image/png格式),第二个参数是图片质量,其值为0-1(默认为0.92)
+
+_________________________________________________________________________
+
+伪元素选择器
+
+:first-line     匹配内容的第一行
+
+:first-letter   匹配内容的第一个字符
+
+:before         在元素内容之前插入一些内容,需要配合content属性
+
+:after          在元素内容之后插入一些内容,需要配合content属性
+
+::selection     (user-select)选中时文字的样式,只接受少量属性 background,color,cursor,outline
+
+_________________________________________________________________________
+
+目标伪类选择器
+
+:target         使用target选择器对页面中的某个target元素(锚点)指定样式
+                该样式只在用户点击了页面中的超链接,并且跳转到target元素后起作用
+                可用于实现tab切换 例如:    :target{
+                                             background: #cccccc;
+                                             }
+
+_________________________________________________________________________
+
+状态伪类选择器
+
+:focus                  获取焦点的时候触发
+
+:disabled               设置禁用状态下的样式
+
+:enabled                设置没有被禁用状态下的样式
+
+:read-only              只读
+
+:read-write             可读可写
+
+:checked                给单选,多选设置选中的样式
+
+_________________________________________________________________________
+
+结构伪类选择器
+
+:root                   匹配页面的根元素
+
+:empty                  内容为空的元素
+
+:first-child            在父元素下找第一个子元素(不管有多少类型的子元素都会找第一个)
+
+:last-child             在父元素下找最后一个子元素
+
+:nth-child(n)           在父元素下找到第n个子元素(n从1开始)
+
+:nth-last-child(n)      在父元素下找到倒数第n个子元素
+
+:only-child             在父元素下只有一个元素则生效
+
+:nth-child(odd)         在父元素下序号为奇数的子元素,也可以写成:nth-child(2n-1)
+
+:nth-child(even)        在父元素下序号为偶数的子元素,也可以写成:nth-child(2n)
+
+:first-of-type          在父元素下找第一个指定类型元素(按照某种元素类型去查找)
+
+:last-of-type           在父元素下找最后一个指定类型元素
+
+:nth-of-type(n)         在父元素下找指定元素类型 的第n个元素  (n从1开始的整数)
+
+:nth-last-of-type(n)    在父元素下找指定元素类型的倒数第n个元素
+
+:only-of-type           父元素只包含一个同类型的子元素时生效
+
+__________________________________________________________________________
+
+否定伪类选择器
+
+:not()                  除了括号内的元素
+
+__________________________________________________________________________
+
+层次选择器(E,F一定是标签)
+
+E+F                     后一个兄弟选择器
+
+E~F                     后面所有兄弟选择器
+
+__________________________________________________________________________
+
+属性选择器
+
+E[attr]                     选择带有attr属性的所有E元素,支持E[attr1][attr2]多属性选择器
+
+E[attr=val]                 选择带有attr属性且属性值为val的所有E元素
+
+E[attr|=val]                选择带有attr属性且属性值为val(或者val-开头)的所有E元素
+
+E[attr~=val]                选择attr属性包含一个或多个属性值(用空格隔开),其中一个值为val 的所有E元素
+
+E[attr*=val]                选择带有attr属性且属性值包含字符串'val'(如vals,value等) 的所有E元素
+
+E[attr^=val]                选择带有attr属性且属性值以val开头的所有E元素
+
+E[attr$=val]                选择带有attr属性且属性值以val结尾的所有E元素
+
+__________________________________________________________________________
+
+文字阴影
+
+text-shadow: x轴偏移量 y轴偏移量 (阴影模糊半径) 阴影颜色
+//可以设置多个,用逗号隔开
+例如: text-shadow: 5px 5px 10px red, 10px 10px 10px blue, 5px 5px 1px #fc0;
+
+__________________________________________________________________________
+
+    单词换行
+
+    word-break:break-all/break-word
+
+    word-wrap:break-word;   //keep-all 只能在半角空格或连字符处换行
+                              break-all 允许在单词内部换行
+                              normal   使用浏览器默认换行规则
+
+    font-size-adjust 保证字体改为其他字体时字体大小基本保持不变,
+    每一种字体都有aspect = x-heghit / 字体的尺寸
+    如果字体尺寸为100px ,x-height为58px ,字体的ascept值为0.58
+
+    Verdana          0.58
+    Comic Sans MS    0.54
+    Georgia          0.5
+    Times New Roman  0.46
+    宋体             0.58
+
+    c = (a / b ) s
+    a实际所用字体aspect值  b修改前aspect值 s指定字体的尺寸 c浏览器实际显示的尺寸
+
+    宋体/Times New Roman  = 1.26 实际让字体显示16px 16除1.26 大概13px
+
+    文字样式
+
+    自定义字体
+    @font-face {
+        font-family: myFont;
+        src: url('font/AaxiaoNangua.ttf') format('truetype');
+        font-weight: normal;
+    }
+
+__________________________________________________________________________
+
+盒子阴影
+
+box-shadow: x轴偏移量 y轴偏移量 (阴影模糊半径) (阴影大小) 阴影颜色
+
+__________________________________________________________________________
+
+圆角
+
+border-radius:{
+            4个参数:左上 右上 右下 左下
+            3个参数:左上 右上/左下 右下
+            2个参数:左上/右下  右上/左下
+            1个参数:四个边角
+             }
+
+__________________________________________________________________________
+
+图片边框
+
+border-image                //border:1px solid transparent;
+                            //注意:必须首先给div设置一个透明border,否则显示会有问题
+
+border-image-source:         图片路径
+
+border-image-slice:         有四个参数: 上 右 下 左
+                            //图片边框向内偏移,用来分解引入的图片,拆成九宫格,如果没有偏移,边框只会在四个展示出来
+
+
+border-image-width:          图片边框宽度
+
+border-image-outset:         边框图像区域超出边框的量,用于让边框放在div内容外面
+
+border-image-repeat:         边框是否应平铺(repeated平铺 round铺满 stretch拉伸)
+
+__________________________________________________________________________
+
+背景和边框
+
+background:                 url('')     可以放入多张图片,用逗号隔开
+
+background-clip:            背景显示范围
+                            //border-box    默认值
+                            //padding-box   背景绘制在衬距方框内(剪切成衬距方框)
+                            //content-box   背景绘制在内容方框内(剪切成内容方框)
+
+background-origin:          背景图像的七点
+
+background-size:            //如果只给第一个值,第二个默认auto      (像素值/百分比)
+                            //cover 等比例覆盖整个div,可能超出div
+                            //contain 完全包含图片,一端完全撑开,另一端等比例缩放()
+                            //auto 原图大小
+
+background-attachment:      背景是否固定不跟着页面滚动(fixed/scroll)
+
+background-repeat:          (no-repeat/repeat-x/repeat-y 三种值 多个图片用逗号隔开)
+
+background-position:          //n,top/bottom/left/right (n是像素或比例,同个图片写多个方向用空格隔开,不同图片用逗号隔开)
+                              //background-position:center center; 保证图片拉伸后,视觉中心在最中间
+_________________________________________________________________________________________
+
+盒相关样式
+
+   vertical-align
+
+      baseline	默认。元素放置在父元素的基线上。
+
+      sub	垂直对齐文本的下标。
+
+      super	垂直对齐文本的上标
+
+      top	把元素的顶端与行中最高元素的顶端对齐
+
+      text-top	把元素的顶端与父元素字体的顶端对齐
+
+      middle	把此元素放置在父元素的中部。
+
+      bottom	把元素的顶端与行中最低的元素的顶端对齐。
+
+      text-bottom	把元素的底端与父元素字体的底端对齐。
+
+      length
+
+      %	使用 "line-height" 属性的百分比值来排列此元素。允许使用负值。
+
+      inherit	规定应该从父元素继承 vertical-align 属性的值。
+
+
+      inline-table  类型:此元素会作为内联表格来显示（类似 <table>），表格前后没有换行符.
+      table         table(inline-table)
+      tr            table-row
+      td/th         table-cell
+      tbody         table-row-group
+      thead         table-header-group
+      tfoot         table-footer-group
+      col           table-column   代表表格的一列
+      colgroup      table-column-group
+      caption       table-caption
+
+white-space:nowrap;             容器中的文本不能换行
+
+text-overflow:ellipsis;         文本超出容器会在文本展示区末尾添加省略号
+
+#shadow{                        //盒子阴影
+            -webkit-box-shadow: inset 10px 10px 10px green; //h-shadow(必需,水平阴影的位置,可负值),v-shadow(必需,垂直阴影的位置,可负值)
+            -moz-box-shadow: inset 10px 10px 10px green;    //blur(可选,模糊距离),spread(可选,阴影尺寸)
+            box-shadow: inset 10px 10px 10px green;         //color(可选),inset(可选,将外部阴影改为内部阴影)
+        }
+
+box-sizing:           content-box 默认,边框不计入内容
+                      border-box  将边框计入内容
+
+
+
+_____________________________________________________________________
+
+线性渐变
+
+background:linear-gradient(to left bottom,red,yellow,green) //  第一个参数可以有多种写法(to left bottom/to bottom/45deg)
+
+弧形渐变
+
+background:radial-gradient(pink,purple)         //多种颜色用逗号隔开
+                                                //控制渐变大小 (40px,pink,purple),如果要用百分比的话,必须要写两个值(30% 30%,pink,purple)
+                                                //控制方向 (to left,pink,purple)
+                                                //重复(一直重复渐变,必须指定大小) background:repeating-radial-gradient(30px,gold,yellow)
+
+
+__________________________________________________________________________________________________________________________________________
+
+过渡动画
+
+transition
+transition: property duration timing-function delay ;       //参数分别为:属性,持续时间,运动曲线,延迟时间
+
+Animation
+animation: animation duration timing-function n delay;      //参数分别为:动画名,持续时间,运动曲线,动画重复次数,延迟时间
+
+创建自定义动画
+@keyframe name{ a%{} b%{}}              //进行到百分之a时播放动画,进行到百分之b时播放动画
+@keyframe name{ from{} to{}}            //从一个状态到另一个动态
+@keyframe name{ a%{} b%,to{}}           //进行到百分之a时播放动画,进行到百分之b时播放动画时结束
+
+______________________________________________________________________________________
+
+视距(制造景深效果)
+
+perspective: 800px;
+
+视距原点
+
+perspective-origin: 50% 100%;
+
+skew                        //倾斜 一个参数时表示水平倾斜,两个参数表示水平 与 垂直 倾斜
+
+rotateX() rotateY()  rotateZ() ==> rotate3d(x,y,z)                        //三种轴的旋转,rotate旋转的是整个坐标轴
+
+scaleX()  scaleY()   scaleZ() ==> scale3d(x,y,z)                          //三种轴的缩放
+
+translateX(),translateY(),translateZ()==>translate3d(x,y,z)               //三种轴的位移
+
+transform-style: preserve-3d;           //使被转换的子元素保留其3D转换,默认值为flat(子元素不保留其3D转换)
+
+backface-visibility:hidden ;            //隐藏被遮挡的3D元素
+
+______________________________________________________________________________________
+
+全景图制作
+
+要将视角移入到物体内部则需要在外面多添加两层div 一层作为'眼睛',一层控制眼睛的位置,例如:
+<div class="stage"> //眼睛
+        <div class="control">   //控制眼睛位置
+            <div class="image-warpper"> //旋转物体
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+
+多边形各个角度的位置
+//先旋转再位移的好处是方便制作规则正多边形柱体!!!
+for (var i = 0; i < imgDiv.length; i++) {
+                var rotate = 18*i+18
+                var translateX = -125*i;
+                imgDiv[i].style.transform = 'rotateY('+rotate+'deg) translateZ(393px)';
+                imgDiv[i].style.backgroundPosition = translateX+'px 0'
+            }
+
+_________________________________________________________________________________________________
+
+transition:过度属性
+   通过过渡transition，不需要javascript就可以实现简单的动画交互效果。
+   过渡属性看似简单，但实际上它有很多需要注意的细节和容易混淆的地方
+
+   transition 属性是一个简写属性，用于设置四个过渡属性：
+   transition-property   规定设置过渡效果的 CSS 属性的名称。(默认值为all)
+   transition-duration   规定完成过渡效果需要多少秒或毫秒。 (默认值为0s)
+   transition-timing-function  规定速度效果的速度曲线。(默认值为ease函数)
+   transition-delay   定义过渡效果何时开始。过渡延迟时间(默认值为0s)
+
+   可过渡的样式：
+   transition-property:  none: 没有指定任何样式
+                         all: 默认值，表示指定元素所有支持transition-property属性的样式
+                         width: 指定宽度
+
+   颜色: color background-color border-color outline-color
+   位置: backround-position left right top bottom
+   长度:
+       [1]max-height min-height max-width min-width height width
+       [2]border-width margin padding outline-width outline-offset
+       [3]font-size line-height text-indent vertical-align
+       [4]border-spacing letter-spacing word-spacing
+   数字: opacity visibility z-index font-weight zoom
+   组合: text-shadow transform box-shadow clip
+   其他: gradient
+
+   过渡持续时间：该属性的单位是秒s或毫秒ms
+   transition-duration 1s
+
+   过渡延迟时间:该属性定义元素属性延迟多少时间后开始过渡效果，该属性的单位是秒s或毫秒ms
+   transition-delay 0s
+
+   过渡时间函数:过渡时间函数用于定义元素过渡属性随时间变化的过渡速度变化效果
+   transition-timing-function ease(默认)
+
+   steps:步进函数将过渡时间划分成大小相等的时间时隔来运行
+      steps(4,start)
+      steps(4,end)
+                           第一个参数：用来指定间隔个数(该值只能是正整数)
+                           第二个参数: 该参数可选，默认是end，表示开始值保持一次；若参数为start，表示开始不保持
+                                       指定在每个间隔的起点或是终点发生阶跃变化
+
+   贝塞尔曲线：
+        transition-timing-function: cubic-bezier(x1,y1,x2,y2);
+        http://cubic-bezier.com/#.17,.67,.83,.67
+
+   关键字
+   　　关键字其实是bezier函数或steps函数的特殊值
+
+   ease: 开始和结束慢，中间快。相当于cubic-bezier(0.25,0.1,0.25,1)
+
+   linear: 匀速。相当于cubic-bezier(0,0,1,1)
+
+   ease-in: 开始慢。相当于cubic-bezier(0.42,0,1,1)
+
+   ease-out: 结束慢。相当于cubic-bezier(0,0,0.58,1)
+
+   ease-in-out: 和ease类似，但比ease幅度大。相当于cubic-bezier(0.42,0,0.58,1)
+
+   step-start: 直接位于结束处。相当于steps(1,start)
+
+   step-end: 位于开始处经过时间间隔后结束。相当于steps(1,end)
+
+
+   实例：
+   1.
+   若不同的transition-property值，对应的属性值都相同时，则对应的这些属性设置一个即可
+   test{
+       transition-property: width,background;
+       transition-delay: 200ms;
+       transition-timing-function: linear;
+       transition-duration: 2s;
+   }
+   /*类似于*/
+   test{
+       transition: width 2s linear 200ms,background 2s linear 200ms;
+   }
+   2.当transition-property值的个数多于对应的的属性值(属性值的个数大于1个)时，将按顺序开始取值
+     test{
+         transition-property: width,background,opacity;
+         transition-duration: 2s,500ms;
+         transition-timing-function: linear,ease;
+         transition-delay: 200ms,0s;
+     }
+     /*类似于*/
+     test{
+         transition: width 2s linear 200ms,background 500ms ease 0s,opacity 2s linear 200ms;
+     }
+   3.当transition-property值的个数少于对应的属性值个数时，多余的属性值将无效
+     test{
+         transition-property: width;
+         transition-duration: 2s,500ms;
+         transition-timing-function: linear,ease;
+         transition-delay: 200ms,0s;
+     }
+     /*类似于*/
+     test{
+         transition: width 2s linear 200ms;
+     }
+   4.当transition-property的值中出现一个无效值，它依然按顺序对应
+   transition的其他属性值(其他属性出现无效值，处理情况也类似)
+
+   test{
+       transition-property: width,wuxiao,background;
+       transition-duration: 2s,500ms;
+       transition-timing-function: linear,ease;
+       transition-delay: 200ms,0s;
+   }
+   /*类似于*/
+   test{
+       transition: width 2s linear 200ms,background 2s linear 200ms;
+   }
+   5.当transition-property的值中，有些值重复出现多次，则以最后出现的值为准，
+   前面所有出现的值都被认定为无效值，但依然按顺序对应transition的其他属性值
+   test{
+       transition-property: width,width,background;
+       transition-duration: 2s,500ms;
+       transition-timing-function: linear,ease;
+       transition-delay: 200ms,0s;
+   }
+   /*类似于*/
+   test{
+       transition: width 500ms ease 0s,background 2s linear 200ms;
+   }
+   6.若过渡起始值或过渡开始值为auto，则浏览器不会自己计算成具体数字值，
+   而是不发生过渡效果。所以要过渡某些属性，首先需要将其重置成具体数字值
+   [注意]低版本webkit内核浏览器存在bug，会产生反向的过渡效果
+   .test{
+       width: 100px;
+       -webkit-transition: width 2s;
+       transition:width 2s;
+   }
+   .test:hover{
+       width:auto;
+   }
+
+   http://www.cnblogs.com/xiaohuochai/p/5347930.html
+
+__________________________________________________________________________________________________________________
+
+移动端布局 与 移动端事件
+
+移动端布局
+
+通俗的讲,移动设备上的viewport就是设备的屏幕上能用来显示我们的网页的那一块区域,
+再具体一点,就是浏览器上(也可能是一个app中的webview)用来显示网页的那部分区域,
+但viewport又不局限于浏览器可视区域的大小,它可能比浏览器的可视区域要大,也可能比
+浏览器的可视区域小  在默认情况下,一般来讲,移动设备上的viewport都是要大于浏览器
+可视区域的,这是因为考虑到移动设备的分辨率相对于桌面电脑来说都比较小,所以为了能
+在移动设备上正常显示那些传统的为桌面浏览器设计的网站,移动设备上的浏览器都会把自
+己默认的viewport设为980px或者1024px(也可以是其他值,由设备自己设定),但带来的后
+果就是浏览器会出现横向滚动条,因为浏览器可视区域的宽度是比这个默认的viewport的宽度小.
+
+一般移动设备的浏览器都默认设置了一个viewport 元标签,定义一个虚拟的
+layout viewport(布局视口),用于解决早起的页面在手机上显示的问题
+iOS,Android基本都将这个视口分辨率设置为980px,所以px上的网页基本能在
+手机上呈现,只不过元素看上去很小,一般默认可以通过手动缩放网页
+
+设备物理屏幕的可视区域,屏幕显示器的物理像素,同样尺寸的屏幕,像素密度大
+的设备,硬件像素会更多,例如iPhone的物理像素:
+iPhone5: 640*1136
+iPhone6: 750*1334
+iPhone6 Plus: 1242*2208
+
+最适合布局的视口,我们需要通过mate标签来得到理想视口
+<meta name="viewport" content="width=device-width">
+这行代码是通知浏览器,布局视口的宽度应该与理想视口宽度一致
+这也说明了定义理想视口是浏览器的工作,而不是设备或操作系统的工作
+因此,同一设备上的不同浏览器拥有不同的理想视口
+浏览器的理想视口的大小也取决于它所处的设备
+
+
+meta标签content属性的值
+
+width=device-width          height=device-height
+让当前的viewport宽/高等于设备的宽/高,也可以设置一个固定的值,
+尽可能不这样使用,height是设置高度使用的(少用)
+
+initial-scale=1.0
+设置初始化的缩放比例(0.25-10.0,我们设置为1就是没有缩放)
+
+maximum-scale=1.0
+设置最大缩放比例
+
+minimum-scale=1.0
+设置最小缩放比例
+
+user-scalable=no
+是否允许用户缩放(默认yes可以缩放)
+
+
+移动端事件
+
+PC端的mousemove,mouseup,mousedown等事件,在移动端会失效(或使用不正常)
+
+PC端的click事件可以使用,但是会有0.3s的延迟时间
+(0.3s延迟时间:因为手机浏览器中,点击两次之后,会有缩放/放大效果,浏览器
+因此做了一个处理,当触摸一次后,在0.3s内有没有触摸第二次,如果触摸第二次,
+触发放大/缩小,否则是click事件,所以在使用的时候会感觉到0.3s的迟钝,实际
+应用中,0.3s在取消用户缩放后不会发生,但在早期浏览器和微信 qq等应用的
+内嵌webview中仍有这种问题)
+
+touchstart          手指按下的时候触发
+
+touchmove           手指移动的时候触发
+
+touchend            手指离开时触发
+
+touchcancel         事件被打断时触发(来电等)
+
+事件的执行顺序         touchstart - touchmove - touchend - click
+
+
+touchEvent
+与PC端事件对象的差异对比多了3个TouchList属性
+
+touches     当前位于屏幕上的所有手指的一个列表
+
+targetTouches       位于当前DOM元素上的手指的一个列表
+
+changedTouches      保存状态改变的手指对象的一个列表
+
+每个TouchList中都会有很多Touch对象,通过Touch对象可以得到我们想要的一些
+属性,例如:pageX,pageY等
+
+每个列表中的touch对象属性{
+                            screenX     相对于屏幕左边的距离
+                            screenY     相对于屏幕上边的距离
+                            clientX     相对于浏览器左边的距离
+                            clientY     相对于浏览器上边的距离
+                            pageX       相对于页面左边的距离
+                            pageY       相对于页面上边的距离
+                            target      触摸的当前元素
+                            identifier  当前触摸对象的id,用来辨别手指
+                            radiusX,radiusY     手指触摸的范围
+                        }
+
+__________________________________________________________________________
+
+Flex布局
+
+Flex 是 Flexible Box 的缩写，意为"弹性布局"，用来为盒状模型提供最大的灵活性。
+任何一个容器都可以指定为 Flex 布局(设为 Flex 布局以后，子元素的float、clear和vertical-align属性将失效)
+
+容器的属性
+
+flex-direction(理解)        //它可能有4个值     row(默认值):主轴为水平方向,起点在左端
+                                               row-reverse:主轴为水平方向,起点在右端
+                                               column:主轴为垂直方向,起点在上沿
+                                               column-reverse:主轴为垂直方向,起点在下沿
+
+flex-wrap(理解)             //它可能有3个值     nowrap(默认):不换行
+                                               wrap:换行,第一行在上方
+                                               wrap-reverse:换行,第一行在下方(反方向排列)
+
+flex-flow(理解)           //flex-flow属性是flex-direction属性和flex-wrap属性的简写形式
+                             默认值为 row nowrap
+
+justify-content(理解)      //定义项目在主轴上的对其方式,它可能有5个值:flex-start|flex-end|center|apce-between|space-around
+                           flex-start（默认值）：左对齐
+                           flex-end：右对齐
+                           center： 居中
+                           space-between：两端对齐，项目之间的间隔都相等。
+                           space-around：每个项目两侧的间隔相等。所以，项目之间的间隔比项目与边框的间隔大一倍。
+
+align-items (理解)          //定义项目在交叉轴上如何对齐  它可能有5个值:flex-start|flex-end|center|stretch|baseline
+                        flex-start：交叉轴的起点对齐。
+                        flex-end：交叉轴的终点对齐。
+                        center：交叉轴的中点对齐。
+                        baseline: 项目的第一行文字的基线对齐。
+                        stretch（默认值）：如果项目未设置高度或设为auto，将占满整个容器的高度。
+
+align-content(理解)       //定义了多根轴线的对齐方式,如果项目只有一根轴线,该属性不起作用
+                      它可能有6个值:flex-start|flex-end|center|stretch|space-between|space-around
+                        flex-start：与交叉轴的起点对齐。
+                        flex-end：与交叉轴的终点对齐。
+                        center：与交叉轴的中点对齐。
+                        space-between：与交叉轴两端对齐，轴线之间的间隔平均分布。
+                        space-around：每根轴线两侧的间隔都相等。所以，轴线之间的间隔比轴线与边框的间隔大一倍。
+                        stretch（默认值）：轴线占满整个交叉轴。
+
+order(理解)                   //定义项目的排列顺序,数值越小,排列越靠前,默认为零
+
+
+
+flex-grow(理解)             //定义项目的放大比例,默认为0,即如果存在剩余空间,也不放大
+                          如果所有项目的flex-grow属性都为1,则它们将等分剩余空间(如果有的话)
+                          如果一个项目的flex-grow属性为2,其他项目都为1,则前者将为后者的两倍
+
+
+flex-shrink(理解)          //定义了项目的缩小比例,默认为1,即如果空间不足,该项目将缩小
+                        如果所有项目的flex-shrink属性都为1，当空间不足时，都将等比例缩小。
+                        如果一个项目的flex-shrink属性为0，其他项目都为1，则空间不足时，
+                        前者不缩小。  (负值对该属性无效)
+
+flex-basis(理解)            //定义了在分配多余空间之前,项目占据的主轴空间(main size)
+                        //浏览器根据这个属性,计算主轴是否有多余空间,它默认值为auto,即项目本来大小
+                        //他可以设为跟width或height属性一样的值,则项目将占据固定空间
+
+
+
+flex (理解)             //分别填入flex-grow, flex-shrink , flex-basis 的 值
+                          默认值为 0 1 auto ,后两个属性可选(该属性有两个快捷值:auto(1 1 auto),none(0 0 auto))
+                          建议优先使用这个属性,而不是分离三个属性,因为浏览器会推算相关值
+
+align-self (理解)       //允许单个项目有与其他项目不一样的对齐方式,可覆盖align-items属性
+                        //默认值为auto,表示继承父元素的align-items属性,如果没有父元素,则等同于stretch
+
+
+
+

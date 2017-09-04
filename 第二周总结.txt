@@ -1,0 +1,226 @@
+creatElement 创建一个元素节点
+
+appendChild() 为当前元素节点 创建一个子节点
+
+createTextNode 创建一个文本节点
+
+firstElementChild 获取dom元素比直接使用id方法要快
+
+innerHTML 返回/修改 当前元素的子元素和文本内容
+
+nodeValue 访问该节点的文本,如果要访问标签内的文字,需要
+加firstChild,例如 div.firstChild.nodeValue
+
+textContent 返回 当前元素内 所有 文本内容
+
+innerText 功能与textContent相同,但不会返回被CSS隐藏元素文本内容;
+
+remove 从当前节点移除一个子节点 例如:tr.removeChild(td);
+
+getAttributeNode() 获取当前元素指定属性节点
+
+getAttribute() 获取当前元素指定属性值  (只能获取标签的内嵌样式)
+
+hasAttribute() 判断当前元素是否有指定属性 返回Boolean
+
+setAttribute('name','value') 更新当前元素指定属性
+
+removeAttribute() 删除当前元素的指定属性
+
+自定义属性 data-*属性 用于存储数据,存储页面或者应用程序私有自定义数据
+          data-* 属性名不应该含有任何大写字符,并且data-后至少要有一个字符
+                 属性值可以是任意字符串
+
+nodelist 是一组元素集合(伪数组),index每一个节点都有index节点的索引编号(number)
+元素节点在nodelist中保存的顺序,跟他们在HTML页面中出现的顺序相同
+.item()方法,返回nodelist指定下标的节点,需要在小括号中传入指定的索引
+length 表示nodelist 里有多少项
+
+nodeValue,对于元素节点,本身不包括文本所以nodeValue 在元素节点上不可用
+          对于文本节点,本身就是nodeValue
+          对于属性节点 nodeValue == 属性值
+
+nodeName  某个节点的名称
+           对于元素节点 nodeName == 当前元素的标签名
+           对于文本节点 nodeName == #text
+           对于属性节点 nodeName == 属性名
+
+nodeType
+           对于元素节点 nodeType == 1
+           对于属性节点 nodeType == 2
+           对于文本节点 nodeType == 3
+
+           文档元素     nodeType == 9
+           注释元素     nodeType == 8
+
+访问节点的新方法
+            querySelectorAll('css选择器')  根据css 选择器语法返回一个或多个元素
+                                            但是其速度慢于id 与class 访问;
+
+previousSibling  获取前一个任意类型兄弟节点,包括文本节点,属性节点,元素节点
+
+previousElementSibling 获取前一个元素兄弟节点
+
+nextSibling 获取后一个任意类型兄弟节点
+
+nextElementSibling 获取后一个元素兄弟节点
+
+nodeType 节点类型
+
+parentNode 获取当前节点的父节点
+
+childNodes 标准属性,返回指定元素的子元素集合,包括html 节点所有属性文本节点
+
+children 非标准属性,所有浏览器都支持,只返回指定元素的子html节点
+
+firstChild 返回指定元素的第一个子节点,包括 html,attribute,text 三种节点
+
+firstElementChild 返回指定元素的第一个html节点
+
+lastChild 返回指定元素的最后一个子节点,包括 html,attribute,text 三种节点
+
+lastElementChild 返回指定元素最后一个html节点
+
+
+
+
+BOM browser object model (浏览器对象模型),各种浏览器不兼容的根源所在
+    1.window对象
+    2.location
+    3.history
+    4.navigator
+window对象 BOM的核心对象,window具有双重角色,1.JavaScript中访问浏览器窗口的接口
+                                          2.ECMAScript中定义的全局对象
+1>定义在全局环境下的变量都会成为window对象的属性
+2>定义函数体内的变量,尽可能的减少全局环境下的变量冲突,避免污染全局环境
+3>通过var在全局环境下声明的变量用delete 无法删除
+4>在函数体内不用var声明的变量会成为全局变量,即window对象的属性
+5>Window 对象可以再代码中省略,例window.confirm('are you OK?') 可以写成confirm('are you OK?')
+
+window的属性
+
+screenTop/screenLeft        IE Safari Opera Chrome
+screenY/screenX             FireFox
+innerWidth/innerHeight      浏览器可视区域尺寸
+outerWidth/outerHeight      整个浏览器窗口的尺寸
+
+window方法
+
+1>系统对话框
+alert('message')
+confirm('message')
+prompt('message','defaultValue')
+2>窗口位置/大小(会被浏览器禁用)
+moveTo(x,y)     让浏览器移动到 屏幕的x,y坐标位置
+moveBy(x,y)     让浏览器从当前位置在移动 x,y坐标
+resizeTo(x,y)   让浏览器窗口大小为指定x,y
+resizeBy(x,y)   让浏览器放大多少像素 支持负数
+
+location 对象 包含 有关当前页面url信息的对象
+    属性
+    hash        设置返回url从#号开始的锚
+    host        设置返回主机名和端口号
+    hostname    设置返回主机名
+    href        设置返回完整的url路径
+    search      设置返回从问号开始的url查询部分
+    port        设置返回当前url的端口号
+    protocol    设置返回当前url协议
+    pathname    返回当前url的路径部分
+
+    方法
+        assign()        加载新的文档
+        replace()       新的文档替换当前文档
+        reload()        重新加载当前文档
+
+    history 对象
+        属性 length 返回浏览器历史到列表中的url数量
+        方法
+            back()      加载history列表中的前一个url
+            forward()   加载history列表中的下一个url
+            go(intValue)加载history列表中的某个具体页面 intValue表示前进history列表中的第int个页面(支持负数)
+         navigator 对象
+            appName     浏览器的名称
+            appVersion  浏览器版本
+            platform    操作系统
+            userAgent   用的的代理信息(通过该属性可以获得浏览器及操作系统信息)
+            navigator   (属性只需要了解)
+
+
+
+
+事件的分类
+
+1.鼠标事件
+    .onclick        用户点击某个对象时触发的事件句柄
+    .ondbclick      用户双击某个对象时触发的事件句柄
+    .onmouseover    鼠标移到元素上时触发的事件句柄
+    .onmouseout     鼠标从元素移开时触发的事件句柄
+    .onmousemove    鼠标在元素上移动时触发的事件句柄
+    .onmousedown    鼠标被按下时触发的事件句柄
+    .onmouseup      鼠标被松开时触发的事件句柄
+    .onmouseenter   鼠标光标从元素外部移动到元素范围之内时触发的事件句柄(不冒泡)
+    .onmouseleave   位于元素内部的鼠标光标移动到元素外部时触发的事件句柄(不冒泡)
+    .oncontextmenu  鼠标右键展开菜单时触发的事件句柄
+
+2.键盘事件
+
+    .onkeydown      某个键盘按键被按下时触发的事件句柄
+    .onkeyup        某个键盘按键被松开时触发的事件句柄
+    .onkeypress     某个键盘按键被按下不松开(长按)时 重复触发事件句柄
+
+3.UI事件
+    .onload          页面元素加载后
+    .onbeforeunload  用户退出页面
+    .onresize        窗口框架被重新调整大小时
+    .onselect        文本被选中时
+
+4.表单事件
+    .onblur         元素失去焦点时
+    .onfocus        元素获得焦点时触发
+    .onchange       元素内容被改变时触发
+    .onreset        重置按钮被点击
+    .onsubmit       提交按钮被点击
+
+5.  onscroll         页面滚动
+
+
+
+Event对象
+
+    1.公共属性 方法
+    currentTarget:其事件处理函数当前正在处理事件的那个元素
+    target:返回触发此事件的元素
+    type:被触发事件的类型
+
+    方法
+    preventDefault():阻止浏览器的默认动作     IE:evt.returnValue = false;
+    兼容写法 window.event ? evt.returnValue = false:evt.preventDefault();
+    浏览器默认行为:1.超链接页面跳转 2.表单的提交 3.右键鼠标展示菜单栏
+     stopPropagation():阻止事件的冒泡;
+    兼容写法 window.event ? window.event.cancelBubble = true:stopPropagation();
+
+    2.鼠标/键盘的属性
+    altKey      返回当前事件被触发时'ALT' 键是否被按下
+    ctrlKey     返回当前事件被触发时'ctrl'键是否被按下
+    shiftKey    返回当前事件被触发时'shift'键是否被按下
+    keyCode     返回被敲击的键生成的 键盘码
+    which       返回被敲击的键生成的 Unicode码
+
+    button      返回当前事件被处罚时 那个鼠标按钮被点击
+        w3c 标准
+        0:代表鼠标左键
+        1:代表鼠标滚轮
+        2:代表鼠标右键
+
+        IE8-以下
+        1.鼠标左键 2.鼠标右键 3.左右键同时按 4.鼠标滚轮 5.左键加滚轮 6.右键加滚轮
+        7.左右键加滚轮
+
+    3.event 对象 位置
+        offset      鼠标相对于事件元对象的偏移量,元素自身的左上角为原点坐标
+        client      相对于浏览器可视区域左上角为原点坐标
+        screen      相对于设备屏幕左上角为原点坐标
+        page        相对于文档左上角为原点坐标(包括滚动条滚动过的距离);
+
+window.getcomputedstyle(ele,style.)
+可以获取到元素的指定属性
