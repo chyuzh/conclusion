@@ -222,5 +222,5 @@ Event对象
         screen      相对于设备屏幕左上角为原点坐标
         page        相对于文档左上角为原点坐标(包括滚动条滚动过的距离);
 
-window.getcomputedstyle(ele,style.)
+window.getcomputedstyle(ele, false)[attribute]
 可以获取到元素的指定属性
