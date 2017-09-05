@@ -9,15 +9,15 @@ $ git config --global user.email "电子邮箱"
 注意git config使用 --global 参数,代表这台电脑中所有git 仓库都会使用这个配置
 配置完成后 windows用户 -user下有一个 gitconfig的配置文件
 
-Linux 简单命令 进入一个文件夹目录  cd E:/
-               返回上一层         cd ../
-               创建目录           mkdir 文件夹名
-               查看当前目录所有文件   ls
-               打印当前目录       pwd
-               查看隐藏文件       ls -ah
-               在终端编辑文件      vi filename
-               删除文件           rm
-               删除文件夹         rm -r
+Linux 简单命令 进入一个文件夹目录             cd E:/
+               返回上一层                    cd ../
+               创建目录                      mkdir 文件夹名
+               查看当前目录所有文件           ls
+               打印当前目录                   pwd
+               查看隐藏文件                   ls -ah
+               在终端编辑文件                 vi filename
+               删除文件                       rm
+               删除文件夹                    rm -r
 
 1)创建git 版本库
 
