@@ -1,0 +1,954 @@
+SASS使用
+____________________________________________________________________
+SASS的安装
+
+$npm config set registry https://registry.npm.taobao.org --global
+$npm config set disturl https://npm.taobao.org/dist --global
+
+
+安装ruby 在cmd中输入 gem install sass
+sass -v  如果出现版本号表示sass安装成功
+
+webstorm监听
+给scss文件添加 文件watcher  setting->tools->files watcher 里添加scss文件的watch
+设置Program 文件地址为你安装ruby路径下 bin目录中的scss.bat文件
+C:\Ruby24-x64\bin\scss.bat
+
+//注意环境变量
+//arugument 参数
+//--no-cache --update $FileName$:$FileNameWithoutExtension$.css
+//
+//output path 输出路径
+//$FileNameWithoutExtension$.css:$FileNameWithoutExtension$.css.map
+
+sass编译成css的编译风格
+备注 cd到当前文件目录下
+sass --style <模板样式> demo.scss  demo.css
+
+compressed  压缩css代码
+expanded  没有缩进的
+nested  嵌套缩进的css代码
+compact 简介格式
+
+sass 监听 $sass --watch demo1.scss:demo.css
+
+__________________________________________________________________________
+
+SASS基本用法
+
+@charset "UTF-8"        将文本编码 设为 UTF-8
+
+$value:1                //SASS允许使用变量，所有变量以$开头。
+                        //声明一个变量value ,值为1(也可以是数组,对象)
+                        //如果变量需要镶嵌在字符串之中，就必须需要写在#{}之中。
+                        //SASS允许在代码中使用算式,但是颜色(rgba)的opacity是不能做运算的
+
+$iconColor:red !default //单例:如果变量在声明过程中,使用了!default
+                        //该变量会查询是否已经有非空赋值,如果有就使用非空赋值,没有则使用当前赋值
+
+_________________________________________________________________________________
+
+SASS允许嵌套,例如:
+
+div {
+　   hi {
+　   　　color:red;
+　   }
+    &{}     //&返回上一级,即div{}
+　　}
+
+/* 选择器嵌套最好不要超过三层 过渡嵌套影响到浏览器索引遍历速度*/
+
+@at-root        //跳出根元素,使其不继承父元素的属性
+
+@media screen and (max-width: 799px){
+  .parent{
+    width: 500px;
+    @at-root (without: media){
+      color: red;
+      .child{
+        width: 50px;
+      }
+    }
+  }
+}
+
+
+media嵌套
+.px::after {
+  @each $Pixelrat in 1.5, 2, 3 {
+    @media (-webkit-max-device-pixel-ratio: $Pixelrat), (max-device-pixel-ratio: $Pixelrat) {
+      transform: scaleY(1/$Pixelrat);
+    }
+  }
+}
+
+@media screen {
+  body {
+    @media (min-width: 800px) and (max-width: 1199px) {
+      background: blue;
+    }
+    @media (max-width: 799px) {
+      background: yellow;
+    }
+  }
+}
+
+
+_________________________________________________________________________
+
+SASS的注释
+
+3.4 注释
+
+SASS共有两种注释风格。
+标准的CSS注释 /* comment */ ，会保留到编译后的文件。
+单行注释 // comment，只保留在SASS源文件中，编译后被省略。
+在/*后面加一个感叹号，表示这是"重要注释"。即使是压缩模式编译，
+也会保留这行注释，通常可以用于声明版权信息。
+
+_______________________________________________________________________
+
+SASS的继承
+
+1.@extend
+
+SASS允许一个选择器去继承另一个选择器,例如:
+
+.class1 {
+　　　　border: 1px solid #ddd;
+　　}
+　　.class2 {
+　　　　@extend .class1;        //class2要继承class1，就要使用@extend命令：
+　　　　font-size:120%;
+　　}
+
+
+
+
+2.@mixin   (Mixin有点像C语言的宏（macro），是可以重用的代码块。)
+
+
+
+@mixin left {                   //使用@mixin命令,定义一个代码块
+　　　　float: left;
+　　　　margin-left: 10px;
+　　}
+div {
+　　　　@include left;          //使用@include命令，调用这个mixin。
+　　}
+
+@mixin可以传入参数
+
+@mixin left($value: 10px) {
+　　　　float: left;
+　　　　margin-right: $value;
+　　}
+
+　　div {
+　　　　@include left(20px);    //使用的时候，根据需要加入参数：
+　　}
+
+
+_________________________________________________________________
+
+SASS提供了一些内置的颜色函数,以便生成系列颜色
+
+lighten(#cc3, 10%) // #d6d65c
+　　darken(#cc3, 10%) // #a3a329
+　　grayscale(#cc3) // #808080
+　　complement(#cc3) // #33c
+
+_________________________________________________________________
+
+@import     //插入外部文件
+
+@import "path/filename.scss";
+
+_________________________________________________________________
+
+高级用法
+
+
+1.条件语句
+
+
+if条件语句(@if,@else),例如: @if lightness($color) > 30% {
+                　　　         background-color: #000;
+                　       　} @else {
+                　       　　　background-color: #fff;
+                　       　}
+
+2.循环语句
+
+for循环语句(@for),例如:@for $i from 1 to 10 {
+                         　　　　.border-#{$i} {
+                         　　　　　　border: #{$i}px solid blue;
+                         　　　　}
+                         　　}
+
+while循环语句(@while),例如:  $i: 6;
+                        　　@while $i > 0 {
+                        　　　　.item-#{$i} { width: 2em * $i; }
+                        　　　　$i: $i - 2;
+                        　　}
+
+each循环(for in语句,@each),例如:    @each $member in a, b, c, d {
+                                  　　　.#{$member} {
+                                  　　　　　background-image: url("/image/#{$member}.jpg");
+                                  　 　}
+                                    　}
+
+3.自定义函数
+
+@function double($n){
+    @return $n * 2;
+    }
+#sidebar{
+    width:double(5px);
+    }
+
+_____________________________________________________________________________________________________
+
+Vue
+
+1基本绑定
+
+var vm = new Vue({              //一般情况下要取Vue对象中的数据要在对象前面加$,例如vm.$data,vm.$el
+        el:'#ID',
+        data:{},
+        computed:{},
+        methods:{},
+        watch:{}
+    })
+
+自定义组件:
+            //  组件名不允许使用驼峰命名法
+ Vue.component('shopcart-list',{
+        props:['title','list'], //父组件传参,属性名
+        template: '<div><div v-for="(item,index) in list"><p>{{title}}</p><span>{{index}}</span>{{item.title}}</div></div>'
+    })
+
+
+2.指令:
+    前缀为v-
+        v-if , v-for ,v-bind , v-on , v-model(用于双向绑定,重要)
+        特性插值会转为v-bind绑定: <a href="{{url}}"/> ==> v-bind:href="url"
+        v-once 只渲染一次
+        v-html = "" 纯文本插值,比较危险,容易引起xss攻击
+        模块语法允许配合js使用,但是判断语句只能用三元运算符,不能使用if语句,不能再模板中声明变量
+        // <div v-once>{{message.split('').reverse().join('')}}</div>
+
+
+3.数据绑定只接受单个表达式
+    {{number+1}}                                        true
+    {{ok?"yes":"no"}}                                   true
+    {{message.split('').reverse().join('')}}            true
+    {{var a=1}}                                         false
+    {{if(ok){return message}}}                          false
+
+4.过滤器(没讲)
+        管道式的写法 --> {{message|capitalize}}
+        可以串联:filterA|filterB
+        可以带参数:filterA "arg1" arg2
+
+5.修饰符(没讲)
+    .prevent: 提交事件不再重载页面
+
+    .stop: 阻止单击事件冒泡
+
+    .self: 当事件发生在该元素本身而不是子元素的时候会触发
+
+    .capture: 事件侦听，事件发生的时候会调用
+
+    .once: 跟v-once作用类似，只渲染一次，第二次不会执行
+
+6.缩写
+     v-bind  可以缩写成 :
+
+     v-on    可以缩写成 @
+
+7.计算 computed
+
+    computed:{
+        fullName:{
+            get:function(){}        //可写作get(){}
+            set:function(){}
+        }
+    }
+
+8.Class 与 style 绑定(没讲)
+        变量语法: v-bind:class="{'class-a':isA,'class-b':isB}"      ==>     data:{isA:true, isB:false}
+        对象语法: v-bind:class="classObj"                           ==>     data:{classObj:{'class-a':true,'class-b':false}}
+        数组语法: v-bind:class='[classA,classB]'                    ==>     data:{classA:'class-a',classB:'class-b'}
+
+9.条件渲染
+        v-if , v-show , v-else
+        <h1 v-if="ok">Yes</h1> <h1 v-else>No</h1>       //用 vm.$ok 的boolean 值 决定条件是否成立
+        <h1 v-show="ok">Yes</h1> <h1 v-show="!ok">No</h1>
+
+10.列表渲染
+    v-for
+        内置变量: {{$index}}
+        用法:   v-for = "item in Array"
+                v-for = "(item[,index]) in Array"
+
+11.数组变动监测
+      能触发视图更新的方法
+      push , pop , shift , unshift , splice , sort , reverse        //编译方法
+
+      filter , concat , slice                                       //替换数组
+
+      !!!//尽可能复用DOM:track-by
+           v-for="item in items" track-by="_uid"
+           track-by='$index'
+
+      不能监测到以下变化:
+            1.直接用索引设置元素:        vm.array[0]={};         // vue解决方案：vm.items.$set(0, { childMsg: 'Changed!'}),
+                                                                   vm.items.$remove(item)
+
+            2.修改数据长度:              vm.array.length=0;       // js中常见的清空, vue解决方案：直接用空数组替换
+
+12.对象 v-for(没讲)
+     内置变量:$key
+
+13.值域v-for(没讲)
+    <span v-for="n in 10">{{n}}</span>
+
+14.内置的过滤器(没讲)
+        filterBy 和 orderBy
+
+15.方法与事件处理器
+        v-on 监听DOM事件
+            <button @click='greet'></button>
+            <button v-on:click="greet('xx', $event)"></button>           // 内联语句处理器, $event为内置变量，原生的DOM事件
+            ·事件修饰符
+               <a v-on:click.stop.prevent='doThis' />                    // 阻止冒泡和默认行为，修饰符可以串联
+            ·按键修饰符
+            <input v-on:keyup.13='submit' >                              // 键盘事件后面可接keyCode
+            常见的按键有提供别名：
+                ·enter
+                ·tab
+                ·delete
+                ·esc
+                ·space
+                ·up
+                ·down
+                ·left
+                ·right
+
+16.表单控件绑定
+    v-model 绑定字段
+     <input type="checkbox" id="checkbox" v-model="checked">      // 绑定的值通常是静态字符串，勾选框是布尔值
+
+     参数特性(没讲)
+        lazy        // 延迟到change事件中同步(原为input)
+        number      // 仅允许输入数字
+        debounce    // 延时同步
+
+17.过渡 (动画)
+     典型的过渡
+     <div v-if="show" transition="expand"></div>
+     需要添加CSS样式：
+         .expand-transition(必须), .expand-enter, .expand-leave
+         *如果未设置, 默认为.v-transition, .v-enter, .v-leave
+     同时提供钩子：
+         Vue.transition('expand',{...});
+         ·beforeEnter, enter, afterEnter, enterCancelled, beforeLeave, leave, afterLeave, leaveCancelled
+     渐近过渡：
+         <div v-for='list' transition stagger='100'></div>
+         *钩子stagger, 延时过渡
+
+18.组件
+
+    1.创建组件:       var com = Vue.extend({
+                    template:"<div> content </div>"
+                });
+    2.注册组件:       Vue.component("my-component",com);              //不允许使用驼峰命名法
+
+    3.使用组件:       <div id='app'><my-component></my-component></div>     // html
+                    new Vue({el:'#app'});                                 // js
+
+    前两个步骤可以缩写为: vue.component('my-component',{
+                            template:"<div> content </div>"
+                        })
+
+    // 组件的生命周期
+     beforeCreate: function(){
+         console.log('实例已经被初始化但是,data的数据监听,事件/watch功能还没有加载到实例中')
+     },
+     created:function(){
+         console.log('数据观测(data observer)，属性和方法的运算，watch/event 事件回调已经完成,但是页面dom元素还没开始渲染')
+     },
+     beforeMount: function(){
+         console.log('页面准备渲染,render刚被调用')
+     },
+     mounted:function(){
+         this.$nextTick(function(){
+             console.log('$nextTick : 不仅仅页面渲染完成当前vue实例中所有子组建都渲染完毕会调用该函数')
+         })
+         console.log('页面渲染完成,vm.$el就可用了')
+     },
+     beforeUpdate:function(){
+         console.log('数据发生更新,实例准备重新渲染之前')
+     },
+     updated:function(){
+         console.log('数据发生更新,DOM已经重新渲染完毕后')
+     },
+     beforeDestroy:function(){
+         console.log('组建将要被销毁之前,组件各种监听 方法 el仍然存在,完全可用')
+     },
+     destroyed:function(){
+         console.log('Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。')
+     }
+
+    局部注册(没讲)：
+            var c = Vue.extend({});
+            var parentComponent = Vue.extend({
+                components:{
+                    'my-component': c,
+                }
+            });
+
+    组件选项(没讲)：
+            var c = Vue.extend({
+                data:function(){
+                    return {a:1};
+                }
+            });
+
+    is特性(没讲)：
+            //table中限制其他的节点不能放置其中
+            <table>
+                <tr is='my-component'></tr>
+            </table>
+
+
+
+    Props:
+            props用以从父组件接受数据:
+                使用:
+                    Vue.component('child',{
+                        props:['msg'],
+                        template:'<span>{{msg}}</span>'
+                    });
+
+                声明:
+                     <child msg='hello!'></child>               //字面量语法
+                     <child v-bind:msg='parentMsg'></child>     // 动态语法
+
+                如果props是myMsg,html中需要用my-msg(HTML的特性是不区分大小写)
+
+                字面量和动态语法稍有不同
+                <comp some-prop="1"></comp>        // 传递了一个字符串 "1"
+
+                <comp :some-prop="1"></comp>       // 传递实际的数字
+
+
+            Props绑定类型
+                  <child :msg="parentMsg"></child>         // 默认为单向绑定
+                  <child :msg.sync="parentMsg"></child>    // 双向绑定
+                  <child :msg.once="parentMsg"></child>    //单次绑定
+
+            //双向绑定(难点,反向传值),以下代码为反向传值的例子
+
+            //html部分
+            <div id="app">
+            <my-input @child-value-change="valueChange" :goods="goods"></my-input>      //设置自定义事件,当事件触发时运行valueChange
+            </div>                                                                      //对goods进行单项绑定
+            //js部分
+            Vue.component("my-input",{                                                  //创建my-input的组件
+                props:function(){
+                        return {my-goods:this.goods}                                    //将my-input内的值 返回给 my-input的 my-goods
+                    },
+                watch:{
+                    my-goods:function(new){
+                        this.$emit("child-value-change",new)                            //监听my-input的my-goods的数值变化,并且触发自定义事件
+                     }                                                                  //并且将new(my-goods) 传递给 自定义事件中
+                    },
+                template:"<input type="text" v-model="my-goods">"
+
+                })
+
+            var vm = new Vue({                                                          //父组件
+                el:"#app",
+                data:{
+                    goods:"初始数据"
+                },
+                methods:{
+                    valueChange: function(value){                                       //在自定义事件被触发之后,my-goods被传递到这里(value)使用
+                        this.goods = value ;                                            //现在,新组件改变的值已经成功反向传值了
+                    }
+                }
+
+            })
+
+
+            Props验证:
+                props:{
+                    propA: Number,
+                    propB:{
+                        type:Number,                //类型(原生构造器：String, Number, Boolean, Function, Object, Array)
+                        required:true,              // 必须填写
+                        default: 0,                 // 默认值(如果是object,默认值需要一个函数返回)
+                        validator:function(value){  // 验证
+                            return value === 0;
+                        },
+                        coerce:function(value){
+                            return value+"";            //强制转为字符串
+                            return JSON.parse(value);   //将字符串转化为对象
+                        }
+                    }
+                }
+
+    父子组件通信:
+        this.$parent            //子组件访问父组件
+                                //不建议在子组件中修改父组件的状态
+
+        this.$root              //访问根实例
+
+        this.$children          //父组件的所有子元素
+
+    自定义事件:
+        $on($event,value)               //监听事件
+
+        $emit($event,value)             //触发事件
+
+        $dispatch($event,value)         //派发事件,沿着父链冒泡
+
+        $broadcast($event,value)        //广播时间,向下传递给所有后代
+
+        使用:
+
+            子组件中绑定函数派发事件:
+                methods:{
+                    notify:function(){
+                        this.$dispatch("child-msg",this.msg);
+                    }
+                }
+
+            父组件中定义事件:
+                events:{
+                    "child-msg":function(msg){
+                         this.messages.push(msg);
+                    }
+                }
+
+            更直观的声明方式:
+                <child @child-msg="handleIt"></child>           //直观的为父组件定义事件(child-msg),并且触发父组件的handleIt函数,
+                                                                //子组件只关注触发事件
+
+        子组件索引:
+            <child v-ref:profile></child>
+            var child = parent.$refs.profile;
+
+        命名Slot：
+            父组件模板：
+                <child>
+                    <p slot='one'>One</p>
+                    <p slot='two'>two</p>
+                    <p>Default A</p>
+                </child>
+            子组件模板：
+                <div>
+                    <slot name='one'></slot>
+                    <slot></slot>                    // 默认slot, 找不到匹配内容的回退插槽, 如果没有默认的slot, 不匹配内容将被抛弃
+                    <slot name='two'></slot>
+                </div>
+
+        动态组件(没讲):
+            可以再不同组件之间切换:
+
+                子组件:
+
+                new Vue({
+                    el:"#ID",
+                    data:{
+                        currentView:"home"
+                    },
+                    component:{
+                        home:{},
+                        posts:{},
+                        archive:{}
+                    }
+                })
+
+                父组件:
+
+                <component :is="currentView" keep-alive></component>        // component是Vue保留的元素
+                keep-alive用来把切换出去的组件保留在内存中,可以保留它的状态避免重新渲染
+
+            activate钩子(没讲):
+                用以在切入前做一些异步操作:
+                    activate:function(done){
+                        var self = this ;
+                        loadDataAsync(function(data){
+                            self.someData=data;
+                            done();
+                        })
+                    }
+            transition-mode(没讲)
+                指定列两个动态组件之间如何过渡：
+                    <component :is='currentView' transition='fade' transition-mode='out-in'></component>
+                    //默认进入与离开平滑地过渡, 可以指定另外两种模式：in-out, out-in (先进入or先离开)
+
+        组件和v-for(没讲):
+                    <child v-for='item in items' :item='item' :index='$index'></child>
+                    *因为组件的作用域是孤立的, v-for里的item无法直接传递给组件, 必须像上面一样使用props传递数据
+
+                异步组件(没讲)
+                资源命名约定(没讲)
+                递归组件(没讲)
+                片段实例(没讲)
+                    *推荐模板只有一个根节点(使用template选项时)
+                内联模板(没讲)
+                    组件把它的内容当做它的模板
+                    <child inline-template></child>
+                    *不推荐
+
+        19.深入响应式原理(没讲)
+            ·如何追踪变化
+                *使用Object.defineProperty设置getter/setter
+            ·变化检测问题
+                *不能检测到对象属性的添加或删除
+                *vm.$set('b', 2);
+                 Vue.set(object, key, value);
+            ·初始化数据
+                *推荐在data对象上声明所有的响应属性
+            ·异步更新队列
+                *默认异步更新DOM, 下次事件循环时清空队列, 执行必要的DOM更新
+                *Vue.nextTick(callback);
+            ·计算属性的秘密
+                *计算属性是有缓存的, 除非显示设置为不缓存
+                    computed:{
+                        attr:function(){
+                            return Date.now()+this.msg;
+                        }
+                    }
+                    TO:
+                    computed:{
+                        attr:{
+                            cache: false,
+                            get: function(){
+                                return Date.now()+this.msg;
+                            }
+                        }
+                    }
+                    *但只是在JS中访问是这样的, 数据绑定仍是依赖驱动的。
+
+
+
+
+_______________________________________________________________________________________________________
+
+vue-cli
+
+1.vue-cli的搭建              //进入cmd控制台
+
+    npm install -g vue-cli      //全局安装vue-cli
+                                //如果遇到安装不成功,可以到npm.taobao.org 使用cnpm的方法
+
+    vue init <template-name> <project-name>         //进入准备要搭建工程的目录中
+                                                    //例如:vue init webpack my-project
+    其中<template-name>中有如下选项:    //vue list 可以获取模板选项
+    ★  browserify - A full-featured Browserify + vueify setup with hot-reload, linting & unit testing.
+    ★  browserify-simple - A simple Browserify + vueify setup for quick prototyping.
+    ★  pwa - PWA template for vue-cli based on the webpack template
+    ★  simple - The simplest possible Vue setup in a single HTML file
+    ★  webpack - A full-featured Webpack + vue-loader setup with hot reload, linting, testing & c
+        ss extraction.
+    ★  webpack-simple - A simple Webpack + vue-loader setup for quick prototyping.
+
+2.创建配合webpack的vue工程
+    1)vue init webpack my-project
+
+    ? Project name (norouter) 项目名                        // 不填则默认为括号内的名称,即norouter
+    ? Project description (A Vue.js project) 项目描述
+    ? Author GEC1713 <2874304856.qq.com> 项目作者
+    ? Install vue-router? (Y/n) 是否配置安装vue-router
+    ? Use ESLint to lint your code? (Y/n) 是否使用ESLint检查代码    //严格代码模式
+    ? Setup unit tests with Karma + Mocha? (Y/n) 单元测试 推荐n
+    ? Setup e2e tests with Nightwatch? N 不需要
+
+
+    2)创建后
+    cd norouter         第一步:cd到工程目录
+    npm install         第二部:将项目工程内需要的三方依赖模块下载到工程内
+    npm run dev         第三部:启动工程的服务器
+
+___________________________________________________________________________________
+
+stylus的配置
+
+vue文件中需要使用stylus 预编译语言
+
+//<style lang="stylus" rel="stylesheet/stylus" scoped>
+1)style标签内需要 lang="stylus"声明这段标签内使用的 stylus预编译语言
+2)再加入rel="stylesheet/stylus" 避免stylus语言报红
+3)然后到cmd控制平台 输入 npm install stylus-loader stylus -S ,就能下载最新版stylus插件到工程目录中了
+
+//less插件 用法                             //stylus插件用法
+<style lang="less" scoped>                  <style lang="stylus" rel="stylesheet/stylus" scoped>
+  @color:#42b983;                             .greeting
+a {                                             margin: 0 auto
+  color: @color;                                width: 500px
+}                                               height: 500px
+</style>                                      p
+                                                margin: 50px auto
+                                                height: 100px
+                                                width: 100px
+                                                background: #ccc
+                                                color: white
+                                             </style>
+
+_______________________________________________________________________________
+
+vue-router在webpack上的使用
+
+因为vue-router不管实在开发环境还是在生产环境下都需要这个插件
+我们就不能把vue-router的依赖写在package.json文件下的devDependencies内
+而是跟vue一样写在dependencies中 $ npm install vue-router -S     //但是在工程目录中的package.json中 vue-router已经在dependencies中
+
+// main.js部分
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import App from './App'
+
+import main from './component/main'
+import Hello from './component/Hello'
+import greeting from './component/greeting'
+
+Vue.config.productionTip = false;
+Vue.use(VueRouter);
+
+const routes = [
+    {path:'/main',component:main},                      //配置路由的路径,并且映射到对应的组件
+    {path:'/Hello',component:Hello},
+    {path:'/greeting',component:greeting}
+]
+
+const router = new VueRouter({                          //实例化Vue-router对象,赋给router
+    routes
+})
+
+new Vue({
+    template : '<App/>',
+    component : { App },
+    router                                              //加载router对象
+}).$mount('#app')                                       //挂载到#app中
+
+router.push('/main');                                   //router使用main路径
+
+//App.vue部分
+<template>
+  <div id="app">
+    <div class="link">
+      <router-link to="/main">跳转到主页</router-link>           //导航标签
+      <router-link to="/mine">跳转到我的</router-link>
+      <router-link to="/hello">跳转到欢迎</router-link>
+    </div>
+    <img src="./assets/logo.png">
+    <router-view></router-view>                                 //加载router引用的组件
+  </div>
+</template>
+
+<script>
+
+// 需要注意的是，export default routers 必须写在文件底部，而且后面还需要接一空行，
+// 否则无法通过 ESlint 语法验证
+export default {
+  name: 'app',
+  components: {
+  }
+}
+
+</script>
+______________________________________________________________________________________________
+
+Vuex    (vue的状态管理工具)
+
+1)安装Vuex
+    npm install vuex -S
+
+2)引入Vuex
+
+    // main.js部分
+    import Vue from 'vue'
+    import App from './App'
+    import Vuex from 'vuex'
+
+    Vue.use(Vuex)               // Vuex 通过 store 选项，提供了一种机制将状态从根组件『注入』到每一个子组件中（需调用 Vue.use(Vuex)）
+
+    const store = new Vuex.Store({
+        state: {                        //状态
+          count: 0
+        }
+    })
+
+    /* eslint-disable no-new */
+    new Vue({
+      el: '#app',
+      store,
+      template: '<App/>',
+      components: { App }
+    })
+
+
+_________________________________________________________________________
+
+State (单一状态树)
+
+
+getters()
+Vuex 允许我们在 store 中定义『getters』（可以认为是 store 的计算属性）。
+就像计算属性一样，getters的返回值会根据它的依赖被缓存起来，
+且只有当它的依赖值发生了改变才会被重新计算。
+
+
+mutations()
+更改 Vuex 的 store 中的状态的唯一方法是提交 mutation。
+Vuex 中的 mutations 非常类似于事件：每个 mutation 都有一
+个字符串的 事件类型 (type) 和 一个 回调函数 (handler)。
+这个回调函数就是我们实际进行状态更改的地方，并且它会接受 state 作为第一个参数
+
+
+actions()
+Action 类似于 mutation，不同在于：
+Action 提交的是 mutation，而不是直接变更状态。
+Action 可以包含任意异步操作。
+
+
+
+mapState
+mapState 工具函数会将 store 中的 state 映射到局部计算属性中
+
+
+mapGetters
+mapGetters 辅助函数仅仅是将 store 中的 getters 映射到局部计算属性
+
+
+mapMutations
+mapMutations 辅助函数仅仅是将 store 中的 mutations 映射到局部计算属性
+
+
+mapActions
+mapActions 辅助函数仅仅是将 store 中的 actions 映射到局部计算属性
+
+
+
+
+modules
+
+当store需要储存的内容过于臃肿的时候,可以将store模块化,例如:
+
+const moduleA = {
+  state: { ... },
+  mutations: { ... },
+  actions: { ... },
+  getters: { ... }
+}
+
+const moduleB = {
+  state: { ... },
+  mutations: { ... },
+  actions: { ... }
+}
+
+const store = new Vuex.Store({
+  modules: {
+    a: moduleA,
+    b: moduleB
+  }
+})
+
+store.state.a // moduleA 的状态
+store.state.b // moduleB 的状态
+
+
+
+
+
+
+
+
+
+
+
+_____________________________________________________________________________________
+
+名字拼接(对比computed 与 watch)
+
+一、computed 和 watch 都可以观察页面的数据变化。当处理页面的数据变化时，我们有时候很容易滥用watch。
+而通常更好的办法是使用computed属性，而不是命令是的watch回调。 这里我直接引用vue官网的例子来说明：
+
+(我们要实现 第三个表单的值 是第一个和第二个的拼接，并且在前俩表单数值变化时，第三个表单数值也在变化)
+
+<div id="myDiv">
+    <input type="text" v-model="firstName">
+    <input type="text" v-model="lastName">
+    <input type="text" v-model="fullName">
+</div>
+
+//js: 用watch方法来实现
+
+ new Vue({
+  el: '#myDiv',
+  data: {
+    firstName: 'Foo',
+    lastName: 'Bar',
+    fullName: 'Foo Bar'
+  },
+  watch: {
+    firstName: function (val) {
+      this.fullName = val + ' ' + this.lastName
+    },
+    lastName: function (val) {
+      this.fullName = this.firstName + ' ' + val
+    }
+  }
+})
+
+js: 利用computed 来写
+
+  new Vue({
+       el:"#myDiv",
+            data:{
+                firstName:"Den",
+                lastName:"wang",
+
+            },
+            computed:{
+                fullName:function(){
+                    return  this.firstName  + " " +this.lastName;
+                }
+            }
+   })
+//很容易看出 computed 在实现上边的效果时，是更简单的。
+
+二 、 详解 comouted 计算属性。
+在vue的 模板内（{{}}）是可以写一些简单的js表达式的 ，很便利。但是如果在页面中使用大量或是复杂的表达式去处理数据，
+对页面的维护会有很大的影响。这个时候就需要用到computed 计算属性来处理复杂的逻辑运算。
+
+1.优点：
+在数据未发生变化时，优先读取缓存。computed 计算属性只有在相关的数据发生变化时才会改变要计算的属性，
+当相关数据没有变化是，它会读取缓存。而不必想 motheds方法 和 watch 方法是的每次都去执行函数。
+
+2.setter 和 getter方法：（注意在vue中书写时用set 和 get）
+setter 方法在设置值是触发。
+getter 方法在获取值时触发。
+
+computed:{
+   fullName:{
+    //这里用了es6书写方法
+        set(){
+             alert("set");
+        },
+        get(){
+           alert("get");
+           return  this.firstName  + " " +this.lastName;
+        },
+
+   }
+ }
+三 、watch 方法
+虽然计算属性在大多数情况下是非常适合的，但是在有些情况下我们需要自定义一个watcher，在数据变化时来执行异步操作，这时watch是非常有用的。
