@@ -1,0 +1,600 @@
+﻿node.js
+
+原生nodeJS :
+----------------------------------------------------------------------
+//搭建服务器(http模块的使用)
+var http = require('http'); //引包
+http.createServer(function (req, res) {
+    //用户发送的请求
+    //  '/'表示首页
+    if(req.url == '/favicon.ico'){ //  '/favicon.ico' 对图标的请求
+    return
+    }
+    reswriteHead(200,{'content-type':'text/html;charset=utf-8'});
+    res.write();  //发送消息 消息类型(string buffer)
+    res.end();    //消息发送完毕 消息类型(string buffer)
+}).listen(3000,'localhost');
+
+req.url // 为当前访问的网址
+
+// 可以通过html5 input标签上传到表单的数据
+// req的onData事件可以获取到上传到表单的数据
+
+----------------------------------------------------------------------
+
+// 文件(fs模块的使用)(异步,如果要使用同步API,则在API后面加上Sync,并去掉callback参数)
+
+var fs = require('fs');
+
+fs.readFile(__dirname+'/test.txt',{'enconding':'utf-8',"flag":"r"},function(err, data){
+ if(err){
+  console.log(err);
+  return;
+ }
+ console.log(data.toString());
+ }  读取文件
+
+fs.writeFile(__dirname+'/test.txt',str,{'enconding':'utf-8','flag':'a'},function(err){
+ if(err){
+ console.log(err)
+ return;
+ }
+})  写入文件
+
+fs.stat(newpath,function(err, status){
+console.log(status.isDirectory());
+})  查看文件状态
+
+fs.rename(oldpath,newpath,function(err){
+    if(err){
+        console.log(err);
+    }
+}); // 改名字     移动文件
+
+fs.unlink(oldpath, function(err){
+if(err){
+console.log(err);
+}
+}) 删除文件
+
+fs.mkdir(oldpath,function(err){
+
+}); 新建文件夹
+
+fs.readdir(__dirname+'/album',{'encoding':'utf-8'},function(err,files){
+ if(err){
+ return;
+ }
+ console.log(files)
+})  读取文件夹
+
+fs.rmdir(__dirname+'/album',{'encoding':'utf-8'},function(err){
+ if(err){
+ return;
+ }
+});  // 删除一个空的文件夹, 如果要清空一个文件夹,则要使用递归
+
+----------------------------------------------------------------------
+
+// 网址 (url模块的使用)
+
+var url = require('url');
+
+//完整的一个url 变成对象
+console.log(url.parse( 'http://user:pass@sub.host.com:8080/p/a/t/h?query=string#hash'));
+
+url.parse 与 url.format 可以互相转化
+
+//把一个url对象变成一个完整的url
+console.log(url.format( {protocol: 'http:',
+    slashes: true,
+    auth: 'user:pass',
+    host: 'sub.host.com:8080',
+    port: '8080',
+    hostname: 'sub.host.com',
+    hash: '#hash',
+    search: '?query=string',
+    query: 'query=string',
+    pathname: '/p/a/t/h',
+    path: '/p/a/t/h?query=string',
+    href: 'http://user:pass@sub.host.com:8080/p/a/t/h?query=string#hash'}));
+
+----------------------------------------------------------------------
+
+//路径(path模块的使用)
+
+var path = require('path');
+
+var str = __dirname; // 绝对路径
+var file = __filename; // __dirname+ file 绝对路径
+// path.dirname(str) 返回目录名
+// path.extname(file) 返回后缀名
+//path.join('str','str','str') 返回str/str/str
+//path.isAbsolute(path) 判断是否绝对路径
+// path.format({
+          root:'',    //根目录
+          dir: '',    //文件目录
+          base: '',  //文件全称
+          ext: '',    //排除(后缀)
+          name: ''    //文件名
+      })  返回文件当前位置
+// path.parse(path) 返回一个对象
+        { root:'',    //根目录
+          dir: '',    //文件目录
+          base: '',  //文件全称
+          ext: '',    //排除(后缀)
+          name: ''    //文件名}
+// path.normalize(path)  将目录规范化
+// path.relative(path, toPath) 返回一个从path到toPath的相对目录
+// path.resolve(path) 将目录转化为绝对目录
+
+----------------------------------------------------------------------
+
+request 和 response 对象的具体介绍：
+Request 对象 - request 对象表示 HTTP 请求，包含了请求查询字符串，参数，内容，HTTP 头部等属性。常见属性有：
+req.app：当callback为外部文件时，用req.app访问express的实例
+req.baseUrl：获取路由当前安装的URL路径
+req.body / req.cookies：获得「请求主体」/ Cookies
+req.fresh / req.stale：判断请求是否还「新鲜」
+req.hostname / req.ip：获取主机名和IP地址
+req.originalUrl：获取原始请求URL
+req.params：获取路由的parameters
+req.path：获取请求路径
+req.protocol：获取协议类型
+req.query：获取URL的查询参数串
+req.route：获取当前匹配的路由
+req.subdomains：获取子域名
+req.accepts()：检查可接受的请求的文档类型
+req.acceptsCharsets / req.acceptsEncodings / req.acceptsLanguages：返回指定字符集的第一个可接受字符编码
+req.get()：获取指定的HTTP请求头
+req.is()：判断请求头Content-Type的MIME类型
+Response 对象 - response 对象表示 HTTP 响应，即在接收到请求时向客户端发送的 HTTP 响应数据。常见属性有：
+res.app：同req.app一样
+res.append()：追加指定HTTP头
+res.set()在res.append()后将重置之前设置的头
+res.cookie(name，value [，option])：设置Cookie
+opition: domain / expires / httpOnly / maxAge / path / secure / signed
+res.clearCookie()：清除Cookie
+res.download()：传送指定路径的文件
+res.get()：返回指定的HTTP头
+res.json()：传送JSON响应
+res.jsonp()：传送JSONP响应
+res.location()：只设置响应的Location HTTP头，不设置状态码或者close response
+res.redirect()：设置响应的Location HTTP头，并且设置状态码302
+res.send()：传送HTTP响应
+res.sendFile(path [，options] [，fn])：传送指定路径的文件 -会自动根据文件extension设定Content-Type
+res.set()：设置HTTP头，传入object可以一次设置多个头
+res.status()：设置HTTP状态码
+res.type()：设置Content-Type的MIME类型
+
+----------------------------------------------------------------------------------------------------
+
+// express框架 API
+
+var express = require('express');
+var app = express();
+
+// http请求
+
+app.get('/', function(req, res){
+    res.send('hello');
+}).listen(3000, 'localhost');
+
+// 静态资源
+
+app.use(['/static',]express.static(root,[options]))
+
+// 应用
+
+app.locals      // 应用程序中的局部变量(类似JS中的变量)
+
+app.mountpath   // 通过app.use(path, app1) 来设置app1的路径值  类似于 app.route(多层级路由模式)
+
+// 事件
+
+// 当子应用程序挂载在父应用程序上,该事件触发,父应用程序被传递到回调函数
+app.on('mount', callback(parent))
+
+// 方法
+
+app.get(path, callback)         // 如果是get 某个属性,则返回属性值
+
+app.post(path, callback)        // 如果是set(name, value) 某个属性将被改为value
+
+app.delete(path, callback[,callback...])  // 将HTTP DELETE 请求路由到指定的路径  多个回调函数时,函数结尾加上next()
+
+app.all(path, callback[,callback...]) //  无论任何http请求,句柄都能执行
+
+app.diable(name)                    // 将name属性 设为false
+
+app.disabled(name)                  // 如果某个属性由true设置为false,则返回true
+
+app.enable(name)                    // 将name属性 设为true
+
+app.enabled(name)                   // 如果某个属性由false设置为true,则返回true
+
+app.engine(ext, callback)           // 将给定的模板引擎注册callback 为 ext
+
+     // 例如: app.engine('jade', require('jade')._express);
+             app.engine('html', require('ejs').renderFile);
+
+     // 或者: var engines = require('consolidate');
+              app.engine('haml', engines.haml);
+              app.engine('html', engines.hogan);
+
+app.METHOD(path, callback[,callback])   // METHOD可以是以下方法
+                                        // checkout  connect  copy  delete   get   head
+                                           lock   merge   mkactivity   mkcol   move   m-search
+                                           notify   options   patch   post   propfind   proppatch
+                                           purge   put   report   search   subscribe   trace
+                                           unlock   unsubscribe
+                                        // 如果用的不是以上的方法,而是自定义方法,则在使用的时候
+                                           请用 app['i-method']()来调用
+
+app.param([name], callback)     // 添加回调触发器,以路由参数,参数name的名称或它们的数组在哪里,并且function是回调函数,例如:
+                                // (所有参数回调将在发生参数的任何路由的任何处理程序之前被调用,并且,即使该参数在多个路由中匹配,在请求-响应周期中每个都被调用一次)
+                                // 当:user路由路径出现时,您可以将用户加载逻辑映射到自动提供req.user给路由,或者对参数输入执行验证
+                                // app.param('user', function(req, res, next, id){
+                                       User.find(id, function(err, user) {
+                                           if(err){
+                                            next(err);
+                                           } else if (user) {
+                                               req.user = user;
+                                           } else {
+                                               next(new Error('failed to load user'));
+                                           }
+                                       });
+                                   });
+
+app.path()                  // 返回应用程序的规范路径,一个字符串
+
+app.put(path, callback[,callback...])  // 使用指定的回调函数将HTTP PUT 请求路由到指定的路径
+
+app.render(view[,localals],callback)    // 通过callback 函数返回视图的渲染HTML
+
+    // 例如:  app.render('email', function(err, html){
+                    // ...
+                }
+
+app.route(path)         // 返回单个路由的实例,然后可以使用它来处理具有可选中间件的HTTP动词
+
+    // 例如:      var app = express();
+                  app.route('/events')
+                   .all(function(req,res,next){
+                    // runs for HTTP verbs first
+                   })
+                   .get(function(req,res,next) {
+                   res.json();
+                   })
+                   .post(function(req,res,next) {
+                    // maybe add a new event...
+                   })
+
+// 应用程序设置
+
+app.set(name, value)        // 如果name为以下值,则会对应用程序产生影响
+                               case sensitive routing , env , etag , jsonp callback name
+                               json replacer  ,  json spaces  ,  query parser
+                               strict routing , subdomain offset , trust proxy
+                               views ,  view cache , view engine ,  x-powered-by
+
+app.use([path,]function[,function...])      // 挂载应用程序到指定路由(没有path,默认为'/')(path可以用正则)
+
+    // 用法:            // 本地定义和安装中间件功能
+    单中间件               app.use(function(req,res,next) {
+                            next();
+                        })
+                        // 路由器是有效的中间件
+                            var router= express.Router();
+                            router.get('/',function(req,res,next){
+                            next();
+                            })
+                            app.use(router);
+                        //Express应用程序是有效的中间件
+                            var subApp = express();
+                            subApp.get('/',function(req,res,next){
+                            next();
+                            })
+                            app.use(subApp)
+
+                        // 可以在相同的安装路径中指定多个中间件功能
+    中间件系列               var r1 = express.Router();
+                            r1.get('/', function (req, res, next) {
+                              next();
+                            })
+
+                            var r2 = express.Router();
+                            r2.get('/', function (req, res, next) {
+                              next();
+                            })
+
+                            app.use(r1, r2);
+
+                        // 使用数组来逻辑地对中间件进行分组
+    排列                    var r1 = express.Router();
+                            r1.get('/', function (req, res, next) {
+                              next();
+                            })
+
+                            var r2 = express.Router();
+                            r2.get('/', function (req, res, next) {
+                              next();
+                            })
+
+                            app.use('/', [r1, r2]);
+
+                        // 可以结合以上安装中间件的方式
+    组合                    function mw1(req, res, next) { next(); }
+                            function mw2(req, res, next) { next(); }
+
+                            var r1 = express.Router();
+                            r1.get('/', function (req, res, next) { next(); });
+
+                            var r2 = express.Router();
+                            r2.get('/', function (req, res, next) { next(); });
+
+                            var subApp = express();
+                            subApp.get('/', function (req, res, next) { next(); });
+
+                            app.use(mw1, [mw2, r1, r2], subApp);
+
+
+------------------------------------------------------------------------------------------------------------
+
+请求(req)
+
+req.app         // 此属性保存着正在使用中间件的快速应用程序实例的引用
+
+req.baseUrl     // 安装路由器实例的URL路径
+                    var greet = express.Router();
+
+                    greet.get('/jp', function (req, res) {
+                      console.log(req.baseUrl); // /greet
+                      res.send('Konichiwa!');
+                    });
+
+                    app.use('/greet', greet); // load the router on '/greet'
+
+req.body        // 包含在请求正文中提交的键值对数据,使用:
+                    var app = require('express')();
+                    var bodyParser = require('body-parser');
+                    var multer = require('multer');
+
+                    app.use(bodyParser.json()); // for parsing application/json
+                    app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+                    app.use(multer()); // for parsing multipart/form-data
+
+                    app.post('/', function (req, res) {
+                      console.log(req.body);
+                      res.json(req.body);
+                    })
+
+req.cookies     // 当使用cookie解析器中间件时,此属性是包含请求发送的cookie的对象
+                   req.cookies.name     //Cookie: name = tj
+
+req.fresh       // 指示请求是否为 '新鲜'(最新一次修改比请求修改的时间要早), 与之相反的是req.stale
+
+req.hostname    // 包含来自'主机' HTTP头的主机名   (域名)
+
+req.ip          // 请求的远程IP地址
+
+req.originalUrl // 类似 req.url(请求了http模块之后)
+
+req.params      // 包含映射到命名路由'参数'的属性的对象
+                // 例如，如果您有路由/user/:name，则“name”属性可用作为req.params.name。此对象默认为{}
+
+req.path        // 包含请求URL的路径部分
+
+req.protocol    // 返回http 或 https (协议)
+
+req.query       // 包含路由中每个查询字符串参数的属性的对象, 例如
+                   // GET /search?q=tobi+ferret
+                   req.query.q           // => "tobi ferret"
+
+                   // GET /shoes?order=desc&shoe[color]=blue&shoe[type]=converse
+                   req.query.order       // => "desc"
+
+                   req.query.shoe.color  // => "blue"
+
+                   req.query.shoe.type   // => "converse"
+
+req.route       // 返回当前匹配的路由,一个字符串
+
+req.secure      // 如果TLS链接建立,则为布尔值,相当于: 'https' == req.protocol;
+
+req.signedCookies   // 当使用cookie解析器中间件时,此属性包含请求发送的已签名Cookie,未签名并准备使用
+                    // 签署cookie只是防止cookie 被篡改,如果没有发送签署的cookie,则属性默认为{}
+
+req.stale       // 指示请求是否为'过时'
+
+req.subdomains  // 请求域名中的子域数组   www.baidu.com=> [baike,www,zhidao]
+
+req.xhr         // 表示请求是由(XMLHttpRequest)客户端库发出的
+
+// 方法
+
+req.accepts(mime)     // 根据HTTP头字段检查指定的内容类型是否可以接受
+
+req.acceptsCharsets(charset[,charset...])     // 根据请求的Accept-Charset HTTP头域返回指定字符集的第一个接受的字符集,没有返回false
+
+req.acceptsEncodings(enconding[,enconding...])  // 根据请求的Accept-Encoding HTTP头域返回指定编码的第一个接受的编码,没有返回false
+
+req.acceptsLanguages(lang[,lang...])         // 根据请求的Accept-Encoding HTTP头域返回指定语言的第一个接受的语言,没有返回false
+
+req.get(field)          // 返回指定的HTTP请求头字段(不分大小写),这些referrer 和 referer 领域是可以互换的  req.get('Content-Type');
+                                                                                                       // => "text/plain"
+req.is(type)            // 某种文档类型 返回 boolean
+
+--------------------------------------------------------------------------
+
+// 响应(res)
+
+属性
+
+res.app             // 此属性保存对正在使用中间件的快速应用程序实例的引用
+
+res.headersSent     // 指示应用程序是否发送响应的HTTP表头的
+
+res.locals          // 一个对象,存放着响应局部变量作用域的请求,例如:res.locals.name
+
+
+方法
+
+res.append(field[,value])       // 将指定的附加value到HTTP响应头field
+
+res.attachment([文件名])       // 将HTTP响应Content-Disposition头字段设置为'附件'
+
+res.cookie(name, value[,options])       // 设置使用网站name的value ,value可以用JSON转换(与HTML的cookie相同)
+
+res.clearCookie(name[,options])     // 清除指定的cookie
+
+res.download(path[,filename][,fn])      // 将文件path作为'附件'传输
+
+res.end([data][,encoding])      // 结束响应
+
+res.format(object)      // 在请求对象的HTTP标头上执行内容协商(如果存在),根据文件类型进行回调
+                            res.format({
+                              'text/plain': function(){
+                                res.send('hey');
+                              },
+                              'text/html': function(){
+                                res.send('<p>hey</p>');
+                              }
+                            });
+
+res.get(field)              // 返回指定的HTTP响应头field(不区分大小写)
+
+res.json([body])            // 发送JSON响应,该方法与res.send()相同,同时可以将其值转换为JSON
+                                            res.json(null)
+                                            res.json({ user: 'tobi' })
+                                            res.status(500).json({ error: 'message' })
+
+res.json([body])            // 使用JSONP支持发送JSON响应
+
+res.links(links)            // 将links提供的参数作为参数加入以填充响应的link Http头域
+
+res.location(path)          // 将响应location HTTP头设置为指定的path参数
+
+res.redirect([status,]path) // path使用指定的status(状态码)重定向到从指定URL导出的URL status(默认302找到)
+
+res.render(view[,locals][,callback])    // 渲染 view 并将呈现的HTML字符串发送到客户端
+
+res.send([body])        // 发送HTTP响应 (body可以是Buffer String Array)
+
+res.sendFile(path[,options][,fn])   // 在给定的文件中传输文件path
+
+res.sendStatus(statusCode)      // 将响应的HTTP状态码设置为statusCode,并将其字符串表示形式发送给响应体
+
+res.set(field[,value])      // 将响应的HTTP标头设置field为value,要一次设置多个字段,请传递一个对象作为参数
+
+res.status(code)        // 使用此方法设置响应的HTTP状态(req.statusCode)
+
+res.type(types)         // 将HTTP头设置为指定的MIME类型type
+
+res.vary(field)         // 将该字段添加到vary响应头,如果它还没有
+
+----------------------------------------------------------------------------
+
+// 路由器(router) 用法与 app相似
+
+var router = express.Router([options]);
+
+方法
+
+router.all(path,[callback,...]callback)     // 该方法与router.METHOD()方法类似,除了它匹配所有HTTP动词
+
+
+
+-------------------------------------------------------------------------------------------------------
+
+MongoDB(文档型数据库)
+
+安装
+
+需要到官网下载MongoDB,修改环境变量,然后创建一个存放数据库的文件夹
+
+mongod --dbpath path(存放数据库的文件夹) // 运行数据库服务
+
+mongo // 进入mongo数据库,进行增删查改(开机)
+
+-------------------------------------
+
+mongo数据库的操作命令
+
+show dbs    // 查看当前有多少数据库
+
+show collections // 查看当前数据库的集合
+
+use users // 切换数据库(如果没有该数据库,则进入即将创建的阶段)
+
+db.dropDatabase()   // 删除当前数据库
+
+
+数据库中集合的增删查改
+
+db.col.insert({})       // 插入数据
+
+db.col.find({})         // 查找数据
+
+db.col.update(json1,json2,{multi:true}) // 修改数据
+
+db.col.remove({})       // 删除集合
+
+
+条件操作符:
+
+$gt 大于      $lt 小于      $gte 大于等于       $lte 小于等于       $eq 等于      $ne 不等于     $exist 是否存在
+$in:[7,9] => 7||9       $size:4 只显示4条结果
+
+数据类型的值  $type() 字符串是2   数组是4    对象是7
+
+db.col.find({}).limit(2).skip(2)        // limit 限制数据量 skip 跳过数据量
+
+.sort({"number":1}) // number(以number排序) 1 为正序, -1为倒序
+
+db.col.aggregate()      // 聚合方法
+
+$sum  计算总和
+$avg    平均数
+$min    找最小
+$max    找最大
+$push   添加
+$first  找第一个
+$last   找最后一个
+
+聚合
+$group  分组
+$skip   跳过
+$sort   排序
+
+原子操作符
+
+$set    指定一个key值并且更新
+$unset  指定并且删除一个key
+$inc(number)    自增加,自减少
+$push(Array)    数组的添加
+$pull(Array)    删除
+$rename         改document
+
+
+单个集合的数据导入
+mongoimport -d data -c books Path
+
+单个集合的数据导出
+mongoexport -d data -c books -o file.json
+
+
+数据库的备份
+mongodump -h localhost:27017 -d data -o database
+
+数据库的回复
+mongorestore -h localhost:27017 -d data --dir Path
+
+数据库操作命令
+
+db 查看当前数据库
+db.repairDatabase() 修复当前数据库
+db.version()    查看当前数据库版本
+db.getMongo     查看数据库连接地址
+db.stats        数据库状态
+db.getCollectionNames()     当前有多少个集合

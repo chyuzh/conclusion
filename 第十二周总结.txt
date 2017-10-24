@@ -1,0 +1,88 @@
+﻿Vue-cli 下的饿了么总结
+
+// 简单的 vue 总结
+// date
+    当前组件的数据
+// computed
+    计算当前组件的数据(可读不可写)
+// methods
+    当前组件的方法(供调用)
+// watch
+    监听当前组件的数据
+// state
+    vm.$store.state     store中的状态
+// getters
+    vm.$store.getters   store中的计算属性(返回state)
+// mutations
+    store中的方法(同步)
+// actions
+    store中的(异步)
+// mapState
+    state的辅助函数,存放多个state
+// mapGetters
+    getters的辅助函数,存放多个getters
+// mapMutations
+    mutations的辅助函数,存放多个mutations
+// mapActions
+    actions的辅助函数,存放多个actions
+
+---------------------------------------------------------
+
+1.axios 请求http数据
+
+// 需要在main.js中 加入该方法
+
+import Vue from 'vue'
+import axios from 'axios'
+Vue.prototype.$axios = axios
+
+// 初始化axios
+
+var left = this
+this.$axios.get('/api/goods')
+  .then((res) => {
+    res = res.data
+    if (res.error === 0) {
+      self.goods = res.data
+      self.RECEIVE_FOODS({goods: self.goods})
+    }
+  })
+  .catch((error) => {
+    alert(error)
+  })
+
+this.nextTick(callback)     // 等待整个页面渲染完毕之后调用callback
+
+2.DOM渲染方法
+    对当前数组的修改,如push,pop
+    更改元素的class属性
+
+3.vuex过渡钩子
+    .yourTransitionName-enter-active, .yourTransitionName-leave-active {
+    transition: all .5s ease-in-out
+    }
+
+    .yourTransitionName-enter, .yourTransitionName-leave-to {
+    transform: translateX(20px) rotate(180deg);
+    opacity: 0;
+    }
+
+4.不同的module中的store管理的状态不同
+  最外层的store可以直接调用modules中store
+
+5.父组件可以将数据传到子组件中
+<shopCart :seller="seller" :goods="goods"></shopCart>
+  子组件接收数据只需要添加props就可以使用数据
+  props: {
+    goods: {
+      type: Array
+    },
+    seller: {
+      type: Object
+    }
+  }
+----------------------------------------------------------------------\
+
+less // 一个CSS编译器
+利用变量简化css代码量
+@media (-webkit-min-device-pixel-ratio: 2),(min-device-pixel-ratio: 2) // @media 媒体符号

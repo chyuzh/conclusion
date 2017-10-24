@@ -1,0 +1,382 @@
+﻿Mongoose
+
+安装
+
+npm install mongoose
+
+-----------------------------------------
+
+Schema(一种模式):
+一种以文件形式存储的数据库模型骨架,不具备数据库的操作能力,仅仅只是一段代码,
+无法通往数据库端,仅仅只是数据库模型在程序片段中的一种表现
+
+Schema.Type:
+
+是由Mongoose内定的一些数据类型,基础数据类型都在其中,Mongoose也内置了一些
+特有的Schema.Type
+
+Model(模型):
+
+是经过Schema构造来的,是Schema的编译版本 一个model的实例直接映射为数据库中
+的一个文档 基于这种关系,以后的增删查改都要通过Model实现
+
+关于使用不同业务情况下使用 静态方法(static) 还是 实例方法(methods):
+
+当我们需要找到全部书(并且在后面的代码也要用到的情况),我们可以定义一个静态方法 .isBook()	(在Model中使用)
+当我们需要找到一本类似的书时,我们则可以定义实例方法 .isSimilar()	(在实例中使用)
+
+
+查询:
+
+	直接查询:
+	PersonModel.findOne({},function(err, person){});
+	
+	链式查询:
+	PersonModel
+		.find({})
+		.where().equals()
+		.where().gt().lt()
+		.limit()
+		.sort()
+		.select()
+		.exex(cb)
+		
+验证:
+数据的存储是需要验证的,不是什么数据都能往数据库里储存或者显示到客户端中,验证失败返回err
+
+1. require	非空验证
+
+2. min/mx	范围验证
+
+3. enum/match	枚举验证/匹配验证
+
+4. validate   自定义验证规则(通常用一个函数来验证)
+
+
+
+------------------------------------------------------------------------
+
+// 引入Mongoose
+
+var mongoose = require('mongoose');
+
+var Schema = mongoose.Schema,
+    ObjectId = Schema.ObjectId
+
+//旧版本的连接，可能以后版本更新就没了
+var url = 'mongodb://localhost:27017/myDb';
+//mongoose.connect(url);
+
+mongoose.connect(url, {useMongoClient: true});
+
+// 定义Schema
+
+var BlogPost = new Schema({
+    //author: ObjectId,
+    title: String,
+    body: {
+        type:String,
+        default: '111111111111'
+    },
+    date: {
+        type:Date,
+        default: Date.now()
+    },
+    likes: Number
+});
+
+// 将Schema 发布为 Model
+
+var Blog = mongoose.model('blog',BlogPost);
+
+静态方法:
+
+create()
+find()
+remove()
+findOneAndUpdate()
+findByIdAndUpdate()
+insertOne()
+insertMany()
+update()
+updateOne()
+updateMany()
+findByIdAndremove(_id[,cb])
+findOneAndremove(conditions[,cb]))
+
+实例方法:
+
+save(cb)
+	
+-----------------------------------------------
+
+mongoose.Promise = global.Promise;  // 解决promise分离，使用自带会报
+									// 红色警告(可以用promise避免因为多个回调函数导致阅读性减弱)
+
+// virtual (需补充)
+例如:
+var PersonSchema = new Schema({
+      name:{
+        first:String,
+        last:String
+      }
+    });
+    var PersonModel = mongoose.model('Person',PersonSchema);
+    var krouky = new PersonModel({
+      name:{first:'krouky',last:'han'}
+    });
+// 调用name.full 就可以获取全名,而不用每次取名字都要 .name.first+ '' + .name.last
+PersonSchema.virtual('name.full').get(()=>{
+    this.name.first+ '' + this.name.last
+})
+// 如果名字已经是全名了 可以:
+    PersonSchema.virtual('name.full').set(function(name){
+        var split = name.split(' ');
+        this.name.first = split[0];
+        this.name.last = split[1];
+     });
+    var PersonModel = mongoose.model('Person',PersonSchema);
+    var krouky = new PersonModel({});
+    krouky.name.full = 'krouky han';//会被自动分解
+    console.log(krouky.name.first);//krouky
+
+
+// 关联关系(ref,必须是已经注册过的model中)
+例如:
+	// postSchema 关联字段 user,comment
+	var postSchema = new Schema({
+	title: String,
+	content: String,
+	author: {type: Schema.Types.ObjectId, ref: 'user'},
+	comments: [{type: Schema.Types.ObjectId, ref: 'comment'}]
+	});
+	
+	var Comment = mongoose.model('post', postSchema)
+// populate(聚合)
+
+	query.populate(path[,select][,model][,match][,options])
+	
+	path	// 类型:字符串(填充的关联字段,可以多个)	或对象(把populate的参数封装到一个对象里)或数组
+	
+	select	// Object 或 String	指定document中的那些字段
+	
+	model	// 指定关联字段的model
+	
+	match	// 附加查询条件
+	
+	options	// 指定附加的查询选项
+
+一定要把指定(ref)的 model注册出来,这样才能指定到对应的model:
+var personSchema = new Schema({
+    man: {type: ObjectId, ref: 'State'},        // 指定到名为State 的Model
+    name: String,
+})
+var Person = mongoose.model('Person', personSchema)
+var stateSchema = new Schema({
+    age: {type: Number, min: 12, max: 50},
+    sex: {type: String, enum: ['男', '女']}
+})
+var State = mongoose.model('State', stateSchema)    // State 的Model(指的是第一个参数)
+
+创建新实例对象时,有ref的对象要指定到指定model的新实例对象的_id:
+var Obj2 = {
+    _id: new mongoose.Types.ObjectId(),             // 获取_id
+    age: 21,
+    sex: "女"
+}
+var Obj1 = {
+    name: "许雅祺",
+    man: Obj2._id                                   // 指定到 Obj2 的_id
+}
+---------------------------------------------------------------
+
+// schema支持嵌套
+
+var childSchema1 = new Schema({name:String})
+var childSchema2 = new Schema({name:String})
+var ParentSchema = new Schema({
+    children1: childSchema1,
+    children2: [childSchema2]
+})
+
+可以这样用:
+var parent = new ParentSchema({
+    children2:[name:'1',name:'2']
+})
+
+查询子文档:
+var child = parent.children.id(id)
+-------------------------------------------------------------------------
+
+pug(jade)
+
+安装
+
+npm install pug
+npm install pug-cli -g
+
+编译命令:
+pug xxx.pug
+
+自动编译:
+pug xxx.pug -w 自动编译
+pug xxx.pug -w -P 自动编译+生成标准的页面格式
+
+语法: 固定格式+缩进
+
+树状:
+    ul
+        li item a       // 内容文本添加的方式
+        |  item a      // 自己必须独占一行 如果文本与标签是嵌套关系的话缩进一格
+        li item b
+        li item c
+
+内联:
+    ul
+        li: img
+        li  <img>
+        li: img
+
+    script(text="text/Javascript").
+        var str = null;
+        if(str){
+            console.log(str)
+        } else {
+            console.log('null')
+        }
+
+属性添加:
+
+a(href='/' style='color:red' class='a')
+
+class名/id名(不加标签默认div)添加:
+
+div.container
+div#container
+
+注释
+    //  会写进页面
+    //- 不会写进页面
+
+逻辑语法:
+    第一种:
+        if user
+            ul
+                li
+                li
+                li
+        else
+            div null
+    第二种:    - 表示逻辑语句
+        div
+            -for(var i=0;i<3;i++)
+                li= i
+
+        -var arr = [1,2,3]
+            div
+                each cat in arr
+                    li= cat
+
+去变量:
+    #{}
+    = cat
+
+    数据来源:
+    1.文件内部
+    2.命令行: pug xxx.pug --obj {'val':'123'}
+    3.json文件: pug xxx.pug -O test.json
+
+页面渲染:   通过逻辑语法渲染页面
+    -var n = 0;
+        div
+            while n< 4
+                li= n++
+
+mixin(混入):  重复使用代码块
+
+    mixin list              // 定义mixin的名字
+                ul          // mixin 的内容
+                    li
+                    li
+                    li
+
+          +list     //调用这个mixin
+
+          函数传参数 mixin
+          mixin say(name)
+            li.pet = name
+
+          ul
+            +say('tom')
+            +say('jerry')
+
+继承:     extends ./layout.pug      // 母文件注册的内容块(继承自),用于拓展
+          prepend   append
+          include                   //  包含于,用于调用
+
+          // 母文件内容
+          doctype html
+          html
+              head
+                  block head            // 名为 head 的 block模块(里面填放标签)
+                  block script          // 名为 script 的 block模块
+              body
+                  block content
+
+          // 继承母文件
+          extends ./head.pug
+          block script
+            script(src='')
+
+          block content
+            div 1
+          prepend content           // 放在content 内部的最前面
+            h1 标题
+          append content            // 放在content 内部的最后面
+            h2 标题2
+
+include: 引入                 //
+    include ./head
+        block content
+            h1 11111
+
+
+---------------------------------------------------------------------------------------------------
+
+grunt(打包工具)
+
+安装
+npm install grunt --save-dev
+npm install grunt-cli -g
+
+npm init
+
+先创建一个 gruntfile.js(必须这样命名,作为配置文件)
+
+module.exports = function (grunt) {
+    var sassStyle = 'expanded';
+    // 任务配置代码
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),   // 获取package里的信息
+        sass: {},                                   // 配置sass插件, 编译scss文件
+        concat: {},                                 // 拼接文件
+        uglify: {},                                 // 压缩文件
+        jshint: {},                                 // 检查代码规范
+        watch: {},                                  // 监听文件的修改,并执行一系列操作
+        connect: {}                                 // 将你的文件配置到服务器
+    });
+    // 插件加载代码
+    grunt.loadNpmTasks('grunt-contrib-sass');       // 加载sass
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    // 任务注册代码
+    grunt.registerTask('outputcss', ['sass']);          // 第一个参数是 任务名称, 第二个是任务执行队列
+    grunt.registerTask('concatjs', ['concat']);
+    grunt.registerTask('compressjs', ['concat', 'jshint', 'uglify']);
+    grunt.registerTask('watchjs', ['sass', 'concat', 'jshint', 'uglify', 'connect', 'watch']);
+    grunt.registerTask('default');
+
+};

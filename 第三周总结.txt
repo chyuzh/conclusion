@@ -1,4 +1,4 @@
-cookie:
+﻿cookie:
 
 1.document.cookie ,属性赋值是键名对应键值格式 key : value 
 

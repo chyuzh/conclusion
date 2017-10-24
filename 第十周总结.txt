@@ -1,0 +1,246 @@
+﻿webpack
+
+1.安装webpack
+
+ $npm install -g webpack
+
+2.如何快速生成package.json文件
+
+ $npm init -y
+
+3.在当前工程文件内 安装webpack
+
+ $npm install -S webpack
+
+_____________________________________________________________
+
+webpack 启动方法
+
+第一种 .\node_modules\.bin\webpack demo/main1.js demo/bundle.js     // 见demo01
+
+第二种 修改package.json 在package.json中加入npm脚本(npm script)
+"scripts": {
+    "build": "webpack"
+}
+
+------------------------------
+
+如果当前目录中有webpack.config.js和package.json文件,可以直接调用$ npm run build
+
+否则没有的情况下需要传参指定 webpack的参数
+
+$ npm run build -- --参数 命令和参数之间需要加入两个横杠来隔开
+例如:$ npm run build -- --config demo/webpack.config.js
+
+// webpack-dev-server
+_____________________________________________________________
+
+webpack.config.js 文件
+
+const path = require('path')    // 帮助获取文件路径
+
+// 输入输出单个路径
+module.exports = {
+    entry: './demo02/main1.js',
+    output: {
+        filename: 'bundle2.js',
+        path: path.resolve(__dirname, 'dist')
+    }
+}
+
+----------------------------------
+
+// 输入输出多个路径
+module.exports = {
+    entry: {
+        app1: './demo03/index01.js',
+        app2: './demo03/index02.js'
+    },
+    output: {
+        // 这里的name 是enrtry对象下每个文件的key值 即app1,app2
+        filename: '[name].js',
+        path: path.resolve(__dirname, 'dist')
+    }
+}
+
+--------------------------------
+
+// 利用loader输入输出其他类型文件 (例如:style-loader css-loader file-loader)
+第一步先安装loader文件
+$ npm install --save-dev style-loader css-loader file-loader
+
+第二部在config文件中引入loader
+module.exports = {
+    entry: './demo04/main1.js',
+    output: {
+        filename: 'app1.js',
+        path: path.resolve(__dirname, 'dist')
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                // use:['style-loader','css-loader']
+                loader: 'style-loader!css-loader' //不同的loader之间可以!分隔
+            },
+            {test: /\.(png|svg|jpg|gif)$/,   //正则表达式,图片文件格式的结尾
+             loader: 'file-loader',          // file-loader
+             options: {
+                 outputPath: 'dist',
+             }}]}}
+
+--------------------------------------
+
+babel-loader (一个js编译器，把浏览器不支持的js转译成浏览器支持的js)
+
+const path = require('path')
+module.exports = {
+    entry: './demo05/main.jsx',
+    output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, './')
+    },
+    module: {
+        /*
+         use: {
+         loader: 'babel-loader',
+         options: {
+         presets: ['es2015','react']    // 用来配置es2015 与react的工作环境
+         }
+         }
+         问号loader?后面可以添加选项  参数之间用&符号隔开
+         bable-presets-es2015  bable-presets-react 是bable的插件
+         简写 babel-loader?presets[]=es2015&presets[]=react
+         */
+        rules: [
+            {
+                test: /\.js[x]?$/,
+                exclude: /node_modules/, // 因为node_modules的文件已经编译过,不需要再编译
+                loader:'babel-loader?presets[]=es2015&presets[]=react'
+            },
+        ]
+    }
+}
+
+------------------------------
+
+url-loader  编译jsx文件(es2015 react)
+
+const path = require('path')
+module.exports = {
+    entry: {
+        app1: './demo06/main1.js',
+        app2: './demo06/test.jsx'
+    },
+    output: {
+        filename:'[name].js',           // [name]是entry里的 app1 app2
+        path:  path.resolve(__dirname, './')
+    },
+    module:{
+        rules:[
+            {
+                test: /\.(png|jpe?g|gif|svg)$/,
+                loader: 'url-loader?limit: 10000' // limit当图片小于10000bytes时图片就会变成Data URL展示
+            },
+            {
+                test: /\.css$/,
+                loader: 'style-loader!css-loader?modules'
+            },
+            {
+                test: /\.js[x]?$/,
+                exclude: /node_modules/, // 那些目录下的js文件不进行bable-loader
+                loader:'babel-loader?presets[]=es2015&presets[]=react'
+            }
+        ]
+    }
+}
+
+-----------------------------------------------------------------------------------
+
+安装
+ HTMLwebpackplugin    // 这是一个Webpack插件，可以简化HTML文件的创建，为您的Webpack包提供服务
+ uglifyplugin         // 压缩js代码的插件,可以 通过简化变量名称,空格,
+ openbrowserplugin    //
+ 等三个插件
+
+
+
+const HtmlwebpackPlugin = require('html-webpack-plugin')
+const uglifyPlugin = require('uglifyjs-webpack-plugin')
+const OpenBrowserPlugin = require('open-browser-webpack-plugin')
+const path = require('path')
+
+module.exports = {
+    entry:'./main1.js',
+    output: {
+        filename:'bundle.js',
+        path: path.resolve(__dirname,'./')
+    },
+    plugins: [
+        new HtmlwebpackPlugin({
+            title:'Webpackdemo',
+            filename:'index.html',
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+                // more options:
+                // https://github.com/kangax/html-minifier#options-quick-reference
+            }
+        }),
+        new uglifyPlugin({
+            compress: {
+                warnings: false
+            }
+        }),
+        new OpenBrowserPlugin({
+            url: 'http://localhost:8080'
+        })
+    ]
+}
+
+------------------------------------------------------------------------------------
+
+devserver(通过 $ npm install --save-dev webpack-dev-server 获得)
+
+
+// webpack.config.js部分
+const HtmlwebpackPlugin = require('html-webpack-plugin')    // 热加载
+
+const path = require('path')
+module.exports = {
+    entry: {
+        app1: './main1.js',
+        app2: './test.jsx'
+    },
+    output: {
+        filename:'[name].js',
+        path:  path.resolve(__dirname, 'dist')
+    },
+    devServer: {
+        contentBase: './dist'
+    },
+    module:{
+        rules:[
+            {
+                test: /\.(png|jpe?g|gif|svg)$/,
+                loader: 'url-loader?limit: 5000' // limit当图片小于10000bytes时图片就会变成Data URL展示
+            },
+            {
+                test: /\.css$/,
+                loader: 'style-loader!css-loader?modules'
+            },
+            {
+                test: /\.js[x]?$/,
+                exclude: /node_modules/, // 那些目录下的js文件不进行bable-loader
+                loader:'babel-loader?presets[]=es2015&presets[]=react'
+            }
+        ]
+    },
+    plugins: [                        // 引入插件
+        new HtmlwebpackPlugin({
+            title:'Webpackdemo',
+            filename:'index.html'
+        })
+    ]
+}

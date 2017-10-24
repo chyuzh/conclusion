@@ -1,0 +1,274 @@
+﻿---------------------------------------------------------------------------------------------
+
+bootstrap(css)
+
+颜色定义类
+
+.danger 危险红
+.success    成功绿
+.warning    警告橙
+.sr-only    隐藏
+
+table
+
+.table  可以实现表格的基本样式
+.table-bordered 可以实现表格的边框样式
+.table-striped  可以让tbody内部的tr,产生隔行变色(斑马线)
+.table-hover    可以让表格实现鼠标悬停变色的功能
+.table-condensed    可以让表格间距更加紧凑
+
+可以定义为按钮
+
+<a href="#" class="btn btn-default">按钮</a>
+<button class="btn btn-warning">按钮</button>
+<input type="button" class="btn btn-success" value="按钮"/>
+
+按钮颜色
+
+.btn-default    默认色
+.btn-primary    主要蓝
+.btn-success    成功绿
+.btn-info       信息蓝
+.btn-warning    警告橙
+.btn-danger     危险红
+.btn-link       链接样式
+
+按钮尺寸
+
+.btn-lg     最大按钮
+            默认按钮
+.btn-sm     较小的按钮
+.btn-xs     最小的按钮
+.btn-block  即块级按钮
+
+激活状态
+
+.active     激活状态
+            普通状态
+.disable    禁用状态
+
+表单基本格式
+
+form 标签的内部 表单标签(input标签)  必须添加.form-control 类名
+
+内联表单
+
+.form-inline    在大屏幕表单按inline-block并排放置, 当屏幕小于768px,会恢复独占行的样式
+表单合组一定要添加label标签
+
+
+表单合组
+
+<div class="input-group">
+    <div class="input-group-addon">姓名</div>
+    <input type="text" class="form-control"/>
+</div>
+
+表单合组控件大小调整
+
+.input-group-lg
+.input-group-sm
+
+单选复选框
+
+.checkbox(-inline)      分行(/同行)
+.radio
+
+例如:
+<div class="checkbox disabled">
+  <label>
+    <input type="checkbox" value="" disabled>
+    Option two is disabled
+  </label>
+</div>
+<div class="radio">
+  <label>
+    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+    Option one is this and that&mdash;be sure to include why it's great
+  </label>
+</div>
+
+文本域和下拉列表
+
+<select class="form-control">
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+</select>
+
+静态控件(将纯文本和label元素放在同一行):
+<p class="form-control-static"></p>
+
+调整尺寸
+
+.input-lg   变大
+.input-sm   变小
+
+调整图片
+
+.img-circle     圆形
+.img-thumbnail  带有边框
+.img-rounded    圆角
+
+响应式布局
+@media做 屏幕适配
+
+bootstrap的布局使用
+
+
+栅格系统:
+
+框架包含一个响应时候,移动设备优先,不固定的网格系统,可以随着设备或视口的大小增加宽度,一行最多显示12列
+
+栅格必须包含在一个 .container的.row 中 (嵌套的情况 就是再嵌套一个.row在里面)
+每个栅格左右间距15px
+.col-lg-      大屏幕(设备宽度>=1200px) .container最大宽度 None
+.col-md-      中屏幕(设备宽度>=992px) .container最大宽度   750px
+.col-sm-      小屏幕(设备宽度>=768px) .container最大宽度   970px
+.col-xs-      超小屏幕(设备宽度<768px) .container最大宽度   1170px
+
+偏移
+
+.col-lg-offset-
+.col-md-offset-
+.col-sm-offset-
+.col-xs-offset-
+
+一行怎么排列:
+
+如果一行的栅格数目加起来超过12 最后一个元素自动换行
+
+.center-block   块级内容居中
+
+为父级元素 添加.clearfix 可以快速清除浮动
+
+.show/.hidden   强制任意元素显示或隐藏(修改display)
+
+.invisible   隐藏元素(visible:hidden)
+
+响应式工具
+
+可用的类
+
+.visible-xs-
+.visible-sm-
+.visible-md-
+.visible-lg-
+
+.hidden-xs-
+.hidden-sm-
+.hidden-md-
+.hidden-lg-
+
+屏幕阅读器(帮助残障人士阅读)
+
+aria-hidden="true"
+--------------------------------------------------------------------------------
+
+bootstrap(js)
+
+模态框(modal)
+
+// 标签内添加 data-toggle="modal"  data-target="#myModal"
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Launch demo modal
+</button>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      // data-dismiss 关闭
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+参数(标签后添加data-)
+
+data-backdrop
+data-keyboard       // 可以通过esc 关闭模态框
+data-show           // 初始化后显示出来
+data-remote
+
+
+
+模态框事件
+
+事件类型	            描述
+
+show.bs.modal	    show 方法调用之后立即触发该事件。如果是通过点击某个作为触发器的元素，则此元素可以通过事件的 relatedTarget 属性进行访问。
+
+shown.bs.modal	    此事件在模态框已经显示出来（并且同时在 CSS 过渡效果完成）之后被触发。如果是通过点击某个作为触发器的元素，则此元素可以通过事件的 relatedTarget 属性进行访问。
+
+hide.bs.modal	    hide 方法调用之后立即触发该事件。
+
+hidden.bs.modal	    此事件在模态框被隐藏（并且同时在 CSS 过渡效果完成）之后被触发。
+
+loaded.bs.modal	    从远端的数据源加载完数据之后触发该事件。
+
+
+下拉菜单(dropdown)
+
+<div class="dropdown">
+  // data-toggle="dropdown"
+  <button id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Dropdown trigger
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dLabel">
+    ...
+  </ul>
+</div>
+
+滚动监听(spy)
+
+<body data-spy="scroll" data-target="#navbar-example">
+  ...
+  <div id="navbar-example">
+    <ul class="nav nav-tabs" role="tablist">
+      ...
+    </ul>
+  </div>
+  ...
+</body>
+
+标签页(tabs)
+
+工具提示(tooltips)
+
+弹出框(popover)
+
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+实例:
+<button type="button" class="btn btn-lg btn-danger"
+ data-toggle="popover" title="Popover title"
+ data-content="And here's some amazing content. It's very engaging. Right?">点我弹出/隐藏弹出框</button>
+
+ 参数(data-)
+
+ data-placement         设置提示出现的位置
+
+ data-focus             设置失焦后消失
+
+
+ 警告信息(alert)
+
+ <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+   <span aria-hidden="true">&times;</span>
+ </button>
+
+ 按钮(button)
+
+ 在组合件的最外层标签 中添加data-toggle="buttons"

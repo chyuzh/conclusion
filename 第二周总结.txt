@@ -1,4 +1,4 @@
-creatElement 创建一个元素节点
+﻿creatElement 创建一个元素节点
 
 appendChild() 为当前元素节点 创建一个子节点
 
