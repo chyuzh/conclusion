@@ -332,11 +332,11 @@ fromCharCode（65） 编码转字符
 	console.log(str.indexOf('l'),str.lastIndexOf('l'));
 	(console 的结果 分别是 2 和 9)
 
-Array.search():查找字符串中第一个该字符的位置 同indexOf
-Array.match():返回一个匹配到字符串的数组 index 字符所在的索引 input:表示整个字符串的引用
+str.search():查找字符串中第一个该字符的位置 同indexOf
+str.match():返回一个匹配到字符串的数组 index 字符所在的索引 input:表示整个字符串的引用
 	例如：console（str.match('l')）
 	(console出来的结果为 ["l", index: 2, input: "hello world"])
-Array.replace():字符串替换, 注意第一个参数为string类型的话替换只能执行一次
+str.replace():字符串替换, 注意第一个参数为string类型的话替换只能执行一次
 （正则表达式             如果需要全部替换(全局匹配),必须使用正则表达式
 /l/ig  找到所有l（不		console.log(/l/g,'i');
 分大小写）的字符）	(console的结果为 heiio worid)

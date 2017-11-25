@@ -1,0 +1,70 @@
+es6
+
+var 有提升机制 例如:
+
+function(sth){
+  if(sth){
+    var str = ''
+  } else {
+    return ''
+  }
+}
+
+提升机制会使 if内声明的str 提升到 if语句外 也就是:
+
+function(sth){
+  var str
+  if(sth){
+    str = ''
+  } else {
+    return ''
+  }
+}
+
+这意味着 提升机制 能让 else 语句内部也能获取到str 的值 (虽然是undefined)
+
+-----------------------------------------
+
+es6 引入了块级作用域( let 和 const )
+
+这样 在if 语句 内部 声明的变量(let str = '' 或者 const str = ''),就不能在else中读取
+
+// 不能用 var let 同时声明同一个变量
+
+-------------------------------------
+
+const声明 的 变量 不能对 里面的值进行 变动,但能更改对象的值,例如:
+
+const a = 6 ;
+a = 7 ; // 这是不行的
+
+const a = {
+  num: 6
+}
+a.num = 7 ; // 这是可行的
+
+-------------------------------------------
+
+for(let i = 0; i < 10; i++) {   // 在循环中,每次都声明一个新的 i (i只存在当前循环中)
+  let i                         // 这里的 i 与 上面的i 不在同一个块级作用域,所以可以同时声明
+  // ...
+}
+console.log(i)    // 访问不到 i ,也就是 i 只存在于 循环内部
+
+for(const str in strs){         // const 只能用来定义常量,不能 像let 那样 i++,所以不能用for循环 而要用 for-in 或 for-of
+
+}
+
+-----------------------------------
+
+let const 不会污染全局作用域
+
+全局作用域下
+
+var a = 'a'
+
+console.log(window.a, window.a == a) // a true
+
+let a = 'a'
+
+console.log(window.a == a)  // false
