@@ -1,0 +1,346 @@
+react 入门前需要的知识:
+
+jsx 被称为js 的语法拓展
+
+jsx 当中js 表达式需要包含在大括号内
+const img = <img src={icon.avatarUrl} />
+
+jsx本身也是一种表达式,开发者可以任意的在jsx中使用js表达式(可以在jsx文件中使用js格式的代码)
+
+jsx属性
+let icon = {name: 'React', avatarUrl: 'react.jpg'}  // 可以自定义属性
+
+如果需要使用单一标签 一定要在标签最后加入/ , 例如:<img />
+
+属性插值使用大括号不能再使用引号
+const img = <img src={icon.avatarUrl}></img>    // src 后面不能加入 引号"
+
+react防止xss攻击,react在渲染之前默认过滤所有传入的值
+ const title = '<img src="react.jpg">'  // 直接作为字符串输入
+
+jsx 的Objects, Babel 转义器会帮忙转化
+const element1 = (
+            <h1 className="ele">
+                hello,world
+            </h1>
+    )
+
+const element2 = React.createElement(   // 进行bug检查,返回一个数据结构{type:'h1',props:[{className:'ele'}],children:'helloworld'}
+       'h1',
+       {className: 'ele'},
+       'hello,world'
+   )
+
+ReactDOM.render(
+      <div>         // 渲染的元素只能有一个元素
+        <p>Hello world {img}</p>
+        {element1}
+        {element}
+        {element2}
+        {getReactDom()}
+        <div>{title}</div>
+      </div>,
+     document.getElementById('example')   // 根元素
+)
+
+-------------------------------------------------------------------------------------------------------------------
+
+更新元素渲染 react元素是不可变的,当元素被创建之后,你是无法改变内容或属性的(类似动画中的一帧,代表某一时间点的状态)
+
+react只会更新必要部分, react DOM首先比较内容先后不同,在渲染中只更新改变了的部分
+
+--------------------------------------------------------------------------------------------------------------------
+
+class 拓展
+
+// es5 的面向对象
+function Demo(x, y) {
+        this.x = x
+        this.y = y
+    }
+
+Demo.prototype.show = function () {
+    console.log(this.x + '/' + this.y)
+}
+Demo.prototype.getValue = function () {
+    return `x:${this.x} / y:${this.y}`
+}
+let a = new Demo(1, 15)
+console.log(Demo.prototype)
+console.log(a.__proto__)
+
+// es6 的面向对象  (class与es5 的区别是内部定义的方法不可枚举,并且class只是一个语法糖)  // 语法糖并没有添加新东西,只是让原
+                                                                                    // 来的代码看起来更加易读易懂
+class Mydemo {
+  constructor(x,y) {
+    this.x = x
+    this.y = y
+  }
+  show() {
+    console.log(this.x + '/' + this.y)
+  }
+  getValue() {
+    return `x:${this.x} / y:${this.y}`
+  }
+}
+
+class 继承
+
+class parent {
+  constructor(x,y) {
+    this.x = x
+    this.y = y
+  }
+  show() {
+    return this.x + '/' + this.y
+  }
+}
+
+class child extends parent {    // extends  关键字 继承
+  constructor(x,y,name) {
+    super(x,y)                  // super 继承 指定类的方法
+    this.name = name
+  }
+  show() {
+    console.log(this.name + super.show())
+  }
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+react 组件 函数定义 / 类定义
+
+es6 class类定义组件
+
+// 最简单的定义组件方法
+function Mytemplate(props) {    // 定义组件名 首字母大写  // props 只读 不可写
+  return <h1>hello,{props.name}</h1>
+}
+
+
+class Myconponent extends React.Component {   // 定义组件名 首字母大写
+  render() {
+    return <h1>hello, {this.props.name}</h1>    // 类中要用this. 才能获取到props 属性
+  }
+}
+
+// 组件渲染
+const ele1 = <Mytemplate name="hello"/>
+const ele2 = <Mycomponent name="world"/>
+
+// 组件嵌套
+function App () {
+  return  (
+    <div>
+      <Mytemplate name="你好"/>
+      <Mycomponent name = "世界"/>
+    </div>
+  )
+}
+
+ReactDOM.render(        // 最终渲染
+  <div>
+    {ele1},
+    {ele2}
+    <App/>
+  </div>,
+  document.getElementById('app')
+)
+
+
+当我们需要页面产生动态改变时, 需要用到state概念(类似vuex)
+
+// 以一个模拟时钟为例子:
+class Clock extends React.Component {   // 构造函数是唯一能够初始化this.state的方法
+  constructor(props){
+    super(props)    // 让我们的组件继承父类的方法,保证组件类始终使用props
+    this.state = {
+      date: new Date(),
+      data: ''
+    }
+  }
+  refresh() {
+    this.setState({     // state修改必须要使用setState(setState()可以传入一个函数)
+      date: new Date()  // 直接修改state 是不会引起页面渲染的
+    })
+  }
+  componentDidMount() {     // react 组件也有生命周期
+    this.timer = setInterval(
+      ()=> this.refresh(),
+      1000
+    )
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer)
+  }
+  render() {
+    return (
+      <div>
+        <h1>Hello {this.props.name}</h1>
+        <h2>It is {this.state.date.toLocaleTimeString()}</h2>
+      </div>
+    )
+  }
+}
+ReactDOM.render(    // 最终渲染
+  <Clock name="world"/>,
+  document.getElementById('app')
+)
+
+// state 中有多个独立状态,当使用setState修改其中一个状态,另一个状态是不会收到影响的,所以setState是可以独立更新状态的
+
+// 数据的单项传递(单项数据流) 自顶向下数据流
+// 每个状态都是真正隔离的
+
+class Child extends React.Component {
+  render() {
+    return (
+      <div>
+        {this.props.time.tolocaleTimeString()}
+      </div>
+    )
+  }
+}
+class Parent extends ReactDOM.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      date: new Date()
+    }
+  }
+  componentDidMount() {
+    setInterval(()=>{
+      this.setState({date: new Date()})
+    }, this.props.time)
+  }
+  render() {
+    return (
+      <div>
+        <Child time={this.state.date}/>
+      </div>
+    )
+  }
+}
+ReactDOM.render(
+  <div>
+    <Parent time={1000}/>             // 三个组件状态都是独立的,互不干扰
+    <Parent time={2000}/>
+    <Parent time={3000}/>
+  </div>,
+  document.getElementById('app')
+)
+
+--------------------------------------------------------------------------------------------------
+
+事件
+
+// react组件内 使用的事件监听
+render() {
+      return <button onClick={this.switch}>{this.state.switch?'开':'关'}</button>
+    }
+
+// react渲染时的事件监听
+ReactDOM.render(
+          <Mybutton onClick={dosth}/>,
+    document.getElementById('app')
+  )
+dosth(e){
+  e.preventDefault();   // 去除默认不能用 return false;
+}
+
+---------------------------------------------------------------------------------------------------
+
+渲染
+
+// 条件渲染
+if(!sth){
+  render(){
+    return ...
+  }
+} else {
+  render() {
+    return ...
+  }
+}
+
+
+// 阻止渲染
+render(){
+  return null
+}
+
+-------------------------------------------------------------------------------------------------------
+
+react渲染列表
+
+  const numbers = [1, 2, 3, 4, 5, 6]
+// React 渲染组件 就是在{}内用jsx构建一个元素集合
+  const listItems = numbers.map((number) => <p>{number}</p>)
+    ReactDOM.render(
+             <div>
+                 {listItems}
+             </div>,
+         document.getElementById('example')
+    )
+
+// 直接运行后页面会报错 Warning: Each child in an array or iterator should have a unique "key" prop.
+// 循环创建元素用数组包含起来时每个子元素必须要包含一个特殊的key属性
+
+
+keys可以在DOM中的某些元素被增加或删除时帮助react识别哪些元素发生了变化,应当给数组中每一个元素赋予一个确定的标识
+
+一个元素的key最好是独一无二的字符串,通常我们会给key值赋值数据的id(这个与vue相似)
+arr.map((item)=> <li key={item.id}>{item}</li>)
+
+当元素没有没有确定的id时,我们可以使用它的索引值作为key
+arr.map((item,index)=> <li key={index}>{item}</li>)
+
+// 注:如果列表可以重新排序,不要使用索引来进行排序(这样会导致渲染很慢)
+如果想了解就去查深度解析key https://reactjs.org/docs/reconciliation.html#recursing-on-children
+
+
+key 是用来做区分和比较的 listItem内部li不需要key值的 我们需要把key放在<ListItem key={}/> // 引用组件处
+当你在使用map()等循环遍历的元素上时 一定要给每个元素加一个独一无二的key
+
+
+以上面两个组件为例 如果同一个父组件使用这两个组件, 并且传入相同的数据这两个组件内 将会生成 一样的key值
+数组元素中使用key值需要他是独一无二的,但是是相对兄弟元素之间(同一个数组里的元素)
+(也就是ul内部的li 中的key必须独一无二,但其他ul的li中的key 是不会影响这个ul内部任何li的)
+
+
+上面的例子中 NumberList1 有一个数组  NumberList有另一个数组 这两个数组不同 所以两个数组间的元素不是兄弟元素
+key我的key虽然需要独一无二但是并不是全局唯一,非兄弟元素可以使用相同的key
+在jsx中{}允许嵌入任何表达式,所以map()函数同样可以写在{}内
+
+
+// 注意map()如果嵌套太多层级,我们推荐开发人员提取组件
+
+----------------------------------------------------------------------------------------------------------
+
+表单提交时html的默认行为,React也是如此,但大多数情况下,我们构造一个处理提交表单并访问用户输入表单数据的函数
+
+实现该标准的方法称为 受控组件 , react只能使用setState() 方法对表单进行更新
+
+render() {
+  return (
+    <form>
+      <label>
+        Name:
+        <input name="value" type="text" value={this.state.value} onChange={this.valueChange}/>
+      </label>
+      <p>你当前输入的姓名是:{this.state.value}</p>
+      <select name="city" value={this.state.city} onChange={this.valueChange}>
+          <option value="bj">北京</option>
+          <option value="sh">上海</option>
+          <option value="gz">广州</option>
+          <option value="sz">深圳</option>
+      </select>
+      <p>你选择的城市是:{this.state.city}</p>
+      <input type="submit" value="Submit"/>
+    </form>
+  )
+}
+
+// 在react中 textarea 会用value属性代替 并且在react中获取textarea值也可以使用value获取
+// select组件在react中 不能使用在option上使用selected属性 要在根select上使用value
+// input textarea select 都是通过value属性实现对组件的控制

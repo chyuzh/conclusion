@@ -364,11 +364,67 @@ touches         Array         触摸事件, 当前停留在屏幕中的触摸点
     x,y         Number        距离Canvas左上角的距离, Canvas的左上角为原点,横向为X轴,纵向为Y轴
   ]
 changedTouches  Array         触摸事件, 当前变化的触摸点信息的数组
-                              表示有变化的触摸点,如从无变有(touchstart),位置变化(touchmove),从有变无(touchend,touchcancel)
+                              表示有变化的触摸点,如从无变有(touchstart),位置变化(touchmove),
+                              从有变无(touchend,touchcancel)
 
 // 特殊事件 <canvas/> 中的触摸事件不可冒泡, 所以没有currentTarget
 
+-----------------------------------------------
+引入
+
+import // 引入 暴露接口的js文件
+<import src="a.wxml">
+C import B    B import A    但C不可以直接引用A
+
+include
+<include src="header.wxml">
+可以将目标文件除了 <template/> <wxs/> 外的整个代码引入,相当于拷贝到include位置
+
 -------------------------------------------------------------------
+WXS
+
+WXS 是小程序的一套脚本语言, 结合 WXML , 可以构建出页面的结构
+
+// wxs 不依赖于运行时的基础库版本, 可以在所有版本的小程序中运行
+// wxs 与 JavaScript是不同的语言, 有自己的语法, 并不和JavaScript一致
+// wxs的运行环境和其他JavaScript代码是隔离的, wxs中不能调用其他JavaScript文件中
+// 定义的函数,也不能调用小程序提供的API
+// wxs函数不能作为组件的事件回调
+// 由于运行环境的差异, 在iOS 设备上小程序内的wxs 回避JavaScript 代码快2~20 倍
+    在Android设备上两者运行效率 无差异
+
+// 一个返回数组最大的元素的值
+
+// page.wxml
+<wxs module= "m1">
+  var getMax = function(arr){
+    var max = undefined;
+    for(var i=0;i<arr.length;i++){
+      max = max===undefined? arr[i]: (max>arr[i]? max: arr[i])
+    }
+    return max
+  }
+module.exports.getMax = getMax;
+</wxs>
+
+<view>{{m1.getMax(arr)}}</view>
+
+// page.js
+Page({
+  data: {
+    arr: [1,3,2,1,4,5,6,2,1,3]
+  }
+})
+-----------------------------------
+可以将wxs 代码 写入 wxs后缀文件
+
+// wxml
+
+<wxs src="a.wxs" module="_module">
+
+wxs 也可以 用import
+
+--------------------------------------------------------------
 
 框架
 
@@ -519,3 +575,119 @@ onShareAppMessage 用户转发
   字段              说明            默认值
   title             转发标题        当前小程序名称
   path              转发路径        当前页面path, 必须是/开头的完成路径
+
+-------------------------------------------------------
+
+初始化数据
+Page({
+  data: {
+    text: 'init data'
+  }
+})
+
+更改数据
+
+Page.prototype.setData()
+  setData函数用于将数据从逻辑层发送到视图层(异步),同时改变对应的this.data的值(同步)
+
+setData() 参数格式
+
+字段       类型       必填        描述            最低版本
+data      Object      是         这次要改变的数据
+callback  Function    否         回调函数          1.5.0
+
+// 直接修改this.data 而不调用this.setData 是无法改变页面状态的,而且还造成数据不一致
+// 单词设置的数据不能超过1024kb,请尽量避免一次设置过多的数据
+// 请不要把data中任何一项的value设为undefined,不然会不被设置,还会遗留潜在问题
+
+--------------------------------------------
+
+页面路由      // 在小程序中所有页面的路由全部由框架进行管理
+
+页面栈       // 框架以栈的形式维护了当前的所有页面,当发生路由切换的时候,页面栈的表现如下:
+------------------------------------
+路由方式              页面栈表现
+
+初始化                 新页面入栈
+打开新页面             新页面入栈
+页面重定向             当前页面出栈,新页面入栈
+页面返回               页面不断出栈,直到目标返回页,新页面入栈
+Tab切换                页面全部出栈, 只留下新的Tab页面
+重加载                 页面全部出栈, 只留下新的页面
+
+-------------------------------------
+
+getCurrentPages()
+
+getCurrentPages()函数用于获取当前页面栈的实例, 以数组形式按栈的顺序给出,第一个元素为首页
+最后一个元素为当前页面
+
+// 不要修改页面栈,会导致路由以及页面状态错误
+
+路由方式  // 对于路由的触发方式以及页面生命周期函数如下
+
+路由方式              触发时机                                   路由前页面       路由后页面
+
+初始化         小程序打开的第一个页面                                             onLoad,onShow
+
+打开新页面     调用API wx.navigateTo 或使用组件<navigator         onHide          onLoad,onShow
+                open-type="navigateTo">
+页面重定向     调用API wx.redirectTo 或使用组件<navigator         onUnload        onLoad,onShow
+                open-type="redirectTo">
+页面返回        调用API wx.navigateBack 或使用组件<navigator       onUnload       onShow
+                open-type="navigateBack">
+Tab切换         调用API wx.switchTab 或使用组件<navigator                         各种情况请参见下表
+                open-type="switchTab">
+重启动         调用API wx.reLaunch 或使用组件<navigator           onUnload        onLoad,onShow
+                open-type="reLaunch">
+
+Tab 切换对应的生命周期(A,B页面为TabBar 页面, C是从A 页面打开的页面,D页面是从C 页面打开的页面为例)
+
+当前页面	        路由后页面	        触发的生命周期（按顺序）
+A	                A	            Nothing happend
+A	                B	            A.onHide(), B.onLoad(), B.onShow()
+A	                B（再次打开）	A.onHide(), B.onShow()
+C	                A	            C.onUnload(), A.onShow()
+C	                B	            C.onUnload(), B.onLoad(), B.onShow()
+D	                B	            D.onUnload(), C.onUnload(), B.onLoad(), B.onShow()
+D（从转发进入）	    A	            D.onUnload(), A.onLoad(), A.onShow()
+D（从转发进入）	    B	            D.onUnload(), B.onLoad(), B.onShow()
+
+// navigate, redirectTo 只能打开非tabBar 页面
+// switchTab 只能打开tabBar 页面
+// reLaunch   可以打开任意页面
+// 页面底部的tabBar 由页面决定, 即只要是定义为tabBar 的页面,底部都有tabBar
+// 调用页面路由带的参数可以在目标页面的onLoad中获取
+
+-----------------------------------------------
+
+文件作用域
+
+在JavaScript文件中声明的变量和函数只在该文件中有效, 不同的文件中可以声明相同名字
+的变量和函数,不会互相影响
+
+通过全局函数getApp() 可以获取全局的应用实例, 如果需要全局的数据可以在App()中设置
+
+App({
+  globalData: 1
+})
+
+var app = getApp()
+
+app.globalData++
+
+---------------------
+
+模块化
+
+可以讲一些公共的代码抽离成为一个单独的js文件,作为一个模块,模块只有通过module.exports
+或exports 才能对外暴露接口
+
+// 需要注意的是
+// exports 是 module.exports 的一个引用, 因此在模块里随意更改exports的指向会造成
+// 未知的错误, 所以更推荐开发者采用module.exports 来暴露模块接口,除非你已经清晰知道这两者
+// 的关系
+// 小程序目前不支持直接 node_modules, 开发者需要用到 node-modules 时候建议
+// 拷贝出相关代码到小程序的引入目录中
+
+// require 暂时不支持绝对路径
