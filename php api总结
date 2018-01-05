@@ -1,0 +1,46 @@
+array(ele1, ele2, ...)                  // 创建数组
+
+array_change_key_case($arr, CASE_UPPER) // 把数组中所有键更改为小写或大写
+
+array_chunk($arr, size, preserve_key)   // 把一个数组分割为新的数组块,返回一个多维数组
+
+array_column()                          // 返回多维数组中的某一列
+
+array_combine()                         // 通过合并两个数组来创建一个新数组
+
+array_count_values()                    // 用于统计数组中所有值里出现的次数
+
+array_diff()                            // 比较数组, 返回差集 (只比较键值)
+
+array_diff_assoc()                      // 比较数组, 返回差集(比较键名和键值)
+
+array_diff_key()                        // 比较数组, 返回差集(只比较键名)
+
+array_diff_uassoc()                     // 比较数组, 返回差集(比较键名和键值,使用用户自定义的键名比较函数)
+
+array_diff_ukey()                       // 比较数组, 返回差集(只比较键名, 使用用户自定义的键名比较函数)
+
+array_fill()                            // 用给定的键值填充数组
+
+array_fill_keys()                       // 用指定的键值填充数组
+
+array_filter()                          // 用回调函数过滤数组中的元素
+
+array_flip()                            // 交换数组中的键和值
+
+array_intersect()                       // 比较数组, 返回交集(只比较键值)
+
+array_intersect_assoc()                 // 比较数组, 返回交集(比较键名和键值)
+
+array_intersect_key()                   // 比较数组, 返回交集(只比较键名)
+
+array_intersect_uassoc()                // 比较数组, 返回交集(比较键名和键值,使用用户自定义的键名比较函数)
+
+array_intersect_ukey()                  // 比较数组, 返回交集(只比较键名, 使用用户自定义的键名比较函数)
+
+array_key_exists()                      // 检查指定的键名是否存在于数组中
+
+array_keys()                            // 返回数组中所有的键名
+
+array_map()                             // 把数组中的每个值发送到用户自定义函数, 返回新的值
+

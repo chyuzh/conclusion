@@ -1,0 +1,102 @@
+TypeScript
+
+基础类型
+
+let isDone: boolean = false;    // 布尔值 true/ false
+
+----------------
+
+let dec: number = 6;     // 数字
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
+
+----------------
+
+let name: string = "yang";  // 字符串
+
+let sentence: string = `i'm ${ name }`;
+// 或者: let sentence: string = "i'm"+ name ;
+
+----------------
+
+let list: number[] = [1,2,3];   //数组
+
+let list: Array<number> = [1,2,3]; // 数组泛型
+
+----------------
+
+let x: [string, number];    // 元组Tuple
+
+x = ['yang', 21] // OK
+x = [21, 'yang'] // error
+
+x[3] = 'zihao';     // OK, 越界时可以使用 元组内定义的类型进行填充
+x[4] = true;        // error, 元组中没有 Boolean类型
+
+----------------
+
+enum Color {Red, Green, Blue}       // enum(枚举)就像对JavaScript标准数据类型进行补充
+let c: Color = Color.Green          // 默认情况下, Red会被赋值0,Green为1,依次递增
+
+enum Color {Red=1, Green=3, Blue=4} // 我们也可以手动添加, 但如果 Red赋予了其他数据类型, 剩下的元素也要手动添加
+
+----------------
+
+let notSure: any = 4;           // any类型,当一个变量的类型动态时或你不清楚变量是什么类型时最好用
+notSure = "maybe a string";
+notSure = false;
+
+let notSure: any = 4;   // 比Object 更好用的是, 可以任意调用在它上面任意的方法
+notSure.ifItExists();   // OK
+notSure.toFixed();      // OK
+
+let prettySure: Object = 4;
+prettySure.toFixed();   // error
+
+let list: any[] = [1,true,'false'];     // 任意类型数组
+
+----------------
+
+function warnUser(): void {     // 某种程度上来说,void类型像与any类型相反, 它表示没有任何类型
+    alert('this is a message');
+}
+
+let unusable: void = undefined; // 声明一个void 类型,他就只能赋予 null或 undefined
+
+----------------
+
+let u: undefined = undefined;   // Null 和 Undefine
+let n: null = null;             // 默认情况下, null和undefined 是所有类型的子类型,也就是 其他类型的变量 都可以赋值null或undefined
+
+----------------
+
+never 类型表示的是永不存在的值得类型,例如: never类型是那些总是会抛出异常或根本就不会
+有返回值的函数表达式或箭头函数表达式的返回值类型; 变量也可能是never类型,当它们被永不为真
+的类型保护所约束时
+never 类型是任何类型的子类型, 也可以赋值给任何类型; 然而, 没有类型是never的子类型或
+可以赋值给never类型(除never本身), 即使any也不可以赋值给never
+
+// 抛出异常的函数
+function error(message: string): never {
+    throw new Error(message);
+}
+// 可以是无法达到终点的函数
+function infiniteLoop(): never {
+    while(true) {
+    }
+}
+
+----------------
+
+类型断言, 在清楚了一个变量的类型时, 机器不进行特殊的数据检查和解构
+
+let someValue: any = 'this is a string';
+
+let strLength: number = (<string>someValue).length;     // 尖括号断言
+
+let strLength: number = (someValue as string).length;   // as 断言,两种形式等价
+
+
+----------------------------------------------------------------------------------------------
+
